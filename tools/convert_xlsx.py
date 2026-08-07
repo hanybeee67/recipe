@@ -1,0 +1,416 @@
+#!/usr/bin/env python3
+"""
+data/에베레스트_레시피_v3.xlsx  ->  recipes/*.md  +  public/images/recipes/*.png
+
+레시피_데이터_템플릿.md 의 스키마를 그대로 따른다.
+원본 시트 1개 = 마크다운 1개. 사용법:  python3 tools/convert_xlsx.py
+"""
+
+from __future__ import annotations
+
+import json
+import os
+import re
+import shutil
+import sys
+import unicodedata
+import xml.etree.ElementTree as ET
+import zipfile
+from pathlib import Path
+
+try:
+    import openpyxl
+except ImportError:
+    sys.exit("openpyxl 이 필요합니다:  pip install openpyxl")
+
+ROOT = Path(__file__).resolve().parent.parent
+XLSX = ROOT / "data" / "에베레스트_레시피_v3.xlsx"
+RECIPES_DIR = ROOT / "recipes"
+IMAGES_DIR = ROOT / "public" / "images" / "recipes"
+
+# ---------------------------------------------------------------- group 매핑
+GROUP_BY_CATEGORY = {
+    "닭고기 카레": "커리",
+    "닭고기 요리": "커리",
+    "양고기 카레": "커리",
+    "베지 카레": "커리",
+    "채식 카레": "커리",
+    "콩 카레": "커리",
+    "새우 카레": "커리",
+    "해산물 카레": "커리",
+    "계란 카레": "커리",
+    "탄두리 요리": "탄두리",
+    "스낵": "스낵",
+    "사이드 메뉴": "스낵",
+    "빵류": "빵류",
+    "밥류": "밥·면",
+    "볶음면": "밥·면",
+    "채식 볶음면": "밥·면",
+    "국수 수프": "밥·면",
+    "수프": "수프·샐러드",
+    "샐러드": "수프·샐러드",
+    "디저트": "디저트·음료",
+    "음료": "디저트·음료",
+    "디저트/사이드": "디저트·음료",
+    "사이드/디저트": "디저트·음료",
+    "세트 메뉴": "세트",
+}
+
+VALID_GROUPS = {"커리", "탄두리", "스낵", "빵류", "밥·면", "수프·샐러드", "디저트·음료", "세트"}
+
+# ------------------------------------------------------- 태그 자동 도출 규칙
+# 두 개의 스코프로 나눈다. 단일 음절 키워드("난", "면", "밥")를 재료명 전체에
+# 부분 문자열로 매칭하면 오탐이 심하므로(예: "슬라이스" -> "라이스"),
+# 주재료 태그는 재료명에서만, 조리법/형태 태그는 메뉴명·분류에서만 도출한다.
+
+# 주재료 태그: 재료명 + 비고 에서만 탐색
+INGREDIENT_TAG_RULES: tuple[tuple[str, tuple[str, ...]], ...] = (
+    ("닭고기", ("닭",)),
+    ("양고기", ("머턴", "머튼", "양사태")),
+    ("해산물", ("새우", "해물", "오징어", "홍합")),
+    ("계란", ("계란",)),
+    ("파니르", ("퍼니르", "파니르")),
+    ("감자", ("감자",)),
+    ("시금치", ("시금치", "펄럭")),
+    ("병아리콩", ("병아리콩", "besan")),
+    ("렌틸", ("달머커니", "달 머커니", "렌틸")),
+    ("버섯", ("버섯",)),
+    ("치즈", ("치즈", "모자렐라", "모짜렐라")),
+    ("크림", ("크림",)),
+    ("요거트", ("요거트", "더히")),
+    ("토마토", ("토마토",)),
+    ("견과", ("캐슈넛", "땅콩")),
+    ("매운맛", ("청양고추", "베트남 고추", "고운 고추가루", "건고추")),
+)
+
+# 조리법/형태 태그: 메뉴명(한/영) + 카테고리 에서만 탐색
+TITLE_TAG_RULES: tuple[tuple[str, tuple[str, ...]], ...] = (
+    ("매운맛", ("빈달루", "vindaloo", "칠리", "chili", "핫&사워", "hot & sour", "아차르", "achar")),
+    ("마일드", ("코르마", "korma", "머커니", "makhani", "버터", "butter", "멀라이", "malai")),
+    ("튀김", ("사모사", "samosa", "스프링롤", "spring roll", "퍼코다", "pakora",
+              "프라이", "fries", "칠리", "chili")),
+)
+
+# 카테고리 -> 형태 태그
+CATEGORY_TAG = {
+    "탄두리 요리": "탄두리",
+    "밥류": "밥",
+    "빵류": "빵",
+    "볶음면": "면",
+    "채식 볶음면": "면",
+    "국수 수프": "면",
+    "수프": "수프",
+    "샐러드": "샐러드",
+    "디저트": "디저트",
+    "음료": "음료",
+}
+
+# 채식 여부 판정: 재료명에 아래가 하나라도 있으면 논베지
+NON_VEG = ("닭", "치킨", "머턴", "머튼", "양사태", "새우", "해물", "오징어", "홍합", "계란")
+
+# 카테고리만으로 채식이 확정되는 경우
+VEG_CATEGORIES = ("베지 카레", "채식 카레", "콩 카레", "채식 볶음면")
+
+# ------------------------------------------------------------- 슬러그 생성
+MANUAL_SLUG = {
+    # 영문명이 없거나 모호한 시트의 고정 슬러그
+    "A set (2인)": "set-menu-for-2",
+    "B set (3인)": "set-menu-for-3",
+    "C set (3인)": "set-menu-for-3-premium",
+}
+
+
+def slugify(text: str) -> str:
+    text = unicodedata.normalize("NFKD", text)
+    text = text.encode("ascii", "ignore").decode("ascii")
+    text = text.lower()
+    text = re.sub(r"[^a-z0-9]+", "-", text)
+    return text.strip("-")
+
+
+# ------------------------------------------------------ 시트 ↔ 임베드 이미지
+def build_image_map(xlsx_path: Path) -> dict[str, str]:
+    """시트명 -> zip 내부 이미지 경로(xl/media/imageN.png)"""
+    ns_main = "http://schemas.openxmlformats.org/spreadsheetml/2006/main"
+    ns_rel = "http://schemas.openxmlformats.org/officeDocument/2006/relationships"
+
+    with zipfile.ZipFile(xlsx_path) as z:
+        names = set(z.namelist())
+
+        def parse(path: str):
+            return ET.fromstring(z.read(path)) if path in names else None
+
+        wb = parse("xl/workbook.xml")
+        wb_rels = {r.get("Id"): r.get("Target") for r in parse("xl/_rels/workbook.xml.rels")}
+
+        result: dict[str, str] = {}
+        for sheet in wb.find(f"{{{ns_main}}}sheets"):
+            sheet_name = sheet.get("name")
+            target = wb_rels[sheet.get(f"{{{ns_rel}}}id")].lstrip("/")
+            sheet_file = os.path.basename(target)
+
+            sheet_rels = parse(f"xl/worksheets/_rels/{sheet_file}.rels")
+            if sheet_rels is None:
+                continue
+            for rel in sheet_rels:
+                if "drawing" not in rel.get("Type"):
+                    continue
+                drawing_file = os.path.basename(rel.get("Target"))
+                drawing_rels = parse(f"xl/drawings/_rels/{drawing_file}.rels")
+                if drawing_rels is None:
+                    continue
+                for r2 in drawing_rels:
+                    if "image" in r2.get("Type"):
+                        result[sheet_name] = "xl/media/" + os.path.basename(r2.get("Target"))
+        return result
+
+
+def extract_image(xlsx_path: Path, member: str, dest: Path) -> None:
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    with zipfile.ZipFile(xlsx_path) as z, z.open(member) as src, open(dest, "wb") as out:
+        shutil.copyfileobj(src, out)
+
+
+# ------------------------------------------------------------------ 시트 파싱
+def clean(value) -> str:
+    if value is None:
+        return ""
+    return re.sub(r"\s+", " ", str(value).replace("‍", "‍")).strip()
+
+
+def parse_sheet(ws) -> dict:
+    name = clean(ws["B2"].value)
+    serving = clean(ws["G2"].value) or "1인분 기준"
+
+    raw_b3 = clean(ws["B3"].value).lstrip("📂").strip()
+    m = re.match(r"^(.*?)\s*\((.+)\)$", raw_b3)
+    if m:
+        category, name_en = m.group(1).strip(), m.group(2).strip()
+    else:
+        category, name_en = raw_b3, ""
+
+    raw_b4 = clean(ws["B4"].value)
+    cook_time = raw_b4.split(":", 1)[1].strip() if ":" in raw_b4 else raw_b4
+    nums = [int(n) for n in re.findall(r"\d+", cook_time)]
+    cook_min = nums[0] if nums else 0
+    cook_max = nums[-1] if nums else cook_min
+
+    # --- 재료: D열이 정수인 행
+    ingredients = []
+    for row in range(7, ws.max_row + 1):
+        no = ws.cell(row=row, column=4).value  # D
+        if not isinstance(no, (int, float)):
+            if ingredients:
+                break
+            continue
+        ingredients.append(
+            {
+                "no": int(no),
+                "name": clean(ws.cell(row=row, column=5).value),  # E
+                "amount": clean(ws.cell(row=row, column=6).value),  # F
+                "note": clean(ws.cell(row=row, column=7).value),  # G
+            }
+        )
+
+    # --- B열 스캔: 조리 방법 / 가니쉬
+    steps: list[str] = []
+    garnish = ""
+    mode = None
+    for row in range(5, ws.max_row + 1):
+        text = clean(ws.cell(row=row, column=2).value)  # B
+        if not text:
+            continue
+        if "조리 방법" in text:
+            mode = "steps"
+            continue
+        if "가니쉬" in text:
+            mode = "garnish"
+            continue
+        if "Recipe Card" in text or "Everest Restaurant Group" in text:
+            mode = None
+            continue
+        if mode == "steps":
+            steps.append(re.sub(r"^\d+\.\s*", "", text))
+        elif mode == "garnish" and not garnish:
+            garnish = text
+
+    return {
+        "name": name,
+        "nameEn": name_en,
+        "category": category,
+        "serving": serving,
+        "cookTime": cook_time,
+        "cookTimeMin": cook_min,
+        "cookTimeMax": cook_max,
+        "ingredients": ingredients,
+        "steps": steps,
+        "garnish": garnish,
+    }
+
+
+def derive_tags(recipe: dict) -> list[str]:
+    ing_text = " ".join(
+        [i["name"] for i in recipe["ingredients"]] + [i["note"] for i in recipe["ingredients"]]
+    ).lower()
+    title_text = " ".join([recipe["name"], recipe["nameEn"], recipe["category"]]).lower()
+
+    tags: list[str] = []
+
+    def add(tag: str) -> None:
+        if tag not in tags:
+            tags.append(tag)
+
+    for tag, keywords in INGREDIENT_TAG_RULES:
+        if any(k.lower() in ing_text for k in keywords):
+            add(tag)
+
+    for tag, keywords in TITLE_TAG_RULES:
+        if any(k.lower() in title_text for k in keywords):
+            add(tag)
+
+    shape = CATEGORY_TAG.get(recipe["category"])
+    if shape:
+        add(shape)
+
+    if recipe["category"] in VEG_CATEGORIES or not any(k in ing_text for k in NON_VEG):
+        add("채식")
+
+    return tags
+
+
+# ------------------------------------------------------------- 마크다운 출력
+def yaml_str(value: str) -> str:
+    """YAML 스칼라를 안전하게 인용."""
+    if value == "":
+        return '""'
+    if re.search(r'[:#\-\[\]{}&*!|>%@`"\',]|^\s|\s$', value):
+        return '"' + value.replace("\\", "\\\\").replace('"', '\\"') + '"'
+    return value
+
+
+def md_cell(value: str) -> str:
+    return value.replace("|", "\\|")
+
+
+def render_markdown(r: dict) -> str:
+    fm = [
+        "---",
+        f"id: {r['id']}",
+        f"name: {yaml_str(r['name'])}",
+        f"nameEn: {yaml_str(r['nameEn'])}",
+        f"category: {yaml_str(r['category'])}",
+        f"group: {yaml_str(r['group'])}",
+        f"serving: {yaml_str(r['serving'])}",
+        f"cookTime: {yaml_str(r['cookTime'])}",
+        f"cookTimeMin: {r['cookTimeMin']}",
+        f"cookTimeMax: {r['cookTimeMax']}",
+        f"image: {yaml_str(r['image']) if r['image'] else 'null'}",
+        f"ingredientCount: {len(r['ingredients'])}",
+        f"stepCount: {len(r['steps'])}",
+        "tags:" if r["tags"] else "tags: []",
+    ]
+    for tag in r["tags"]:
+        fm.append(f"  - {yaml_str(tag)}")
+    fm.append("---")
+
+    body = ["", "## 재료", "", "| # | 재료명 | 수량 | 비고 |", "|---:|---|---|---|"]
+    for ing in r["ingredients"]:
+        body.append(
+            f"| {ing['no']} | {md_cell(ing['name'])} | {md_cell(ing['amount'])} | {md_cell(ing['note'])} |"
+        )
+
+    body += ["", "## 조리 방법", ""]
+    for idx, step in enumerate(r["steps"], start=1):
+        body.append(f"{idx}. {step}")
+
+    if r["garnish"]:
+        body += ["", "## 가니쉬", "", r["garnish"]]
+
+    body.append("")
+    return "\n".join(fm) + "\n" + "\n".join(body)
+
+
+# ----------------------------------------------------------------------- main
+def main() -> int:
+    if not XLSX.exists():
+        sys.exit(f"원본을 찾을 수 없습니다: {XLSX}")
+
+    print(f"원본: {XLSX.name}")
+    wb = openpyxl.load_workbook(XLSX, data_only=True)
+    image_map = build_image_map(XLSX)
+
+    if RECIPES_DIR.exists():
+        for stale in RECIPES_DIR.glob("*.md"):
+            stale.unlink()
+    RECIPES_DIR.mkdir(parents=True, exist_ok=True)
+
+    if IMAGES_DIR.exists():
+        shutil.rmtree(IMAGES_DIR)
+    IMAGES_DIR.mkdir(parents=True, exist_ok=True)
+
+    used_ids: set[str] = set()
+    results: list[dict] = []
+    warnings: list[str] = []
+
+    for ws in wb.worksheets:
+        r = parse_sheet(ws)
+
+        # id
+        base = MANUAL_SLUG.get(ws.title) or slugify(r["nameEn"]) or slugify(ws.title)
+        if not base:
+            base = f"recipe-{len(results) + 1}"
+        rid, n = base, 2
+        while rid in used_ids:
+            rid, n = f"{base}-{n}", n + 1
+        used_ids.add(rid)
+        r["id"] = rid
+
+        # group
+        group = GROUP_BY_CATEGORY.get(r["category"])
+        if group is None:
+            warnings.append(f"[group 미매핑] {ws.title} / category={r['category']!r} -> '스낵'")
+            group = "스낵"
+        r["group"] = group
+
+        # image
+        member = image_map.get(ws.title)
+        if member:
+            ext = os.path.splitext(member)[1] or ".png"
+            dest = IMAGES_DIR / f"{rid}{ext}"
+            extract_image(XLSX, member, dest)
+            r["image"] = f"images/recipes/{dest.name}"
+        else:
+            r["image"] = None
+            warnings.append(f"[사진 없음] {ws.title}")
+
+        r["tags"] = derive_tags(r)
+
+        # 무결성 점검
+        if not r["ingredients"]:
+            warnings.append(f"[재료 0건] {ws.title}")
+        if not r["steps"]:
+            warnings.append(f"[조리단계 0건] {ws.title}")
+        if r["group"] not in VALID_GROUPS:
+            warnings.append(f"[group 값 오류] {ws.title} -> {r['group']}")
+
+        (RECIPES_DIR / f"{rid}.md").write_text(render_markdown(r), encoding="utf-8")
+        results.append(r)
+
+    print(f"레시피 {len(results)}개 -> {RECIPES_DIR.relative_to(ROOT)}/")
+    print(f"사진 {sum(1 for r in results if r['image'])}개 -> {IMAGES_DIR.relative_to(ROOT)}/")
+
+    groups: dict[str, int] = {}
+    for r in results:
+        groups[r["group"]] = groups.get(r["group"], 0) + 1
+    print("대분류:", json.dumps(groups, ensure_ascii=False))
+
+    if warnings:
+        print(f"\n경고 {len(warnings)}건")
+        for w in warnings:
+            print("  -", w)
+
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

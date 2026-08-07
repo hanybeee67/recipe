@@ -1,0 +1,331 @@
+/* ------------------------------------------------------------------
+   P3 — PDF 내보내기
+   브라우저 인쇄 파이프라인을 쓴다. 사용자는 인쇄 대화상자에서
+   "PDF로 저장" 을 선택한다. 한글이 벡터 텍스트로 남고 폰트 임베딩이
+   확실하며, 런타임 의존성이 없다.
+   ------------------------------------------------------------------ */
+
+/* 화면에서 보는 인쇄 미리보기 */
+.printview {
+  background: var(--bg-sunken);
+  min-height: 100vh;
+  padding-bottom: 80px;
+}
+
+.printview__bar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 12px var(--pad-page);
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+}
+.printview__hint {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-right: auto;
+}
+.printview__hint kbd {
+  font-family: var(--font-num);
+  font-size: 11.5px;
+  padding: 2px 6px;
+  border-radius: 5px;
+  border: 1px solid var(--border-strong);
+  background: var(--surface-2);
+}
+
+.printview__paper {
+  max-width: 900px;
+  margin: 24px auto;
+  display: grid;
+  gap: 24px;
+}
+
+/* A4 시트 */
+.sheet {
+  background: #fff;
+  color: #17120e;
+  padding: 18mm 16mm;
+  border-radius: 4px;
+  box-shadow: var(--shadow-md);
+}
+
+.sheet__brand {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #e07a2f;
+  margin-bottom: 18px;
+}
+.sheet__brand-name {
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #e07a2f;
+}
+.sheet__brand-sub {
+  margin-left: auto;
+  font-size: 10.5px;
+  color: #8a7d70;
+  letter-spacing: 0.04em;
+}
+
+.sheet__title {
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  color: #17120e;
+}
+.sheet__title-en {
+  font-size: 12.5px;
+  color: #8a7d70;
+  margin-top: 3px;
+}
+
+.sheet__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 12px;
+}
+.sheet__chip {
+  font-size: 10.5px;
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: 999px;
+  border: 1px solid #e5dcd0;
+  background: #faf7f2;
+  color: #6d6259;
+}
+
+.sheet__section { margin-top: 18px; }
+
+.sheet__h {
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #e07a2f;
+  padding-bottom: 5px;
+  border-bottom: 1px solid #ecd9c4;
+  margin-bottom: 9px;
+}
+
+.sheet__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11.5px;
+}
+.sheet__table th {
+  text-align: left;
+  font-weight: 700;
+  color: #8a7d70;
+  font-size: 10px;
+  letter-spacing: 0.05em;
+  padding: 4px 6px;
+  border-bottom: 1px solid #e5dcd0;
+}
+.sheet__table td {
+  padding: 5px 6px;
+  border-bottom: 1px solid #f2ece3;
+  vertical-align: top;
+}
+.sheet__table tr:nth-child(even) td { background: #fbf8f4; }
+.sheet__table { table-layout: fixed; }
+.sheet__table .num { width: 24px; color: #a89d92; font-variant-numeric: tabular-nums; }
+.sheet__table .amt {
+  width: 54px;
+  text-align: right;
+  white-space: nowrap;
+  font-weight: 700;
+  color: #b0561f;
+  font-variant-numeric: tabular-nums;
+}
+.sheet__table .note { width: 38%; padding-left: 12px; color: #8a7d70; }
+
+.sheet__steps { padding-left: 0; list-style: none; counter-reset: s; }
+.sheet__steps li {
+  counter-increment: s;
+  position: relative;
+  padding: 4px 0 4px 24px;
+  font-size: 12px;
+  line-height: 1.6;
+}
+.sheet__steps li::before {
+  content: counter(s);
+  position: absolute;
+  left: 0;
+  top: 5px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #fdf0e4;
+  border: 1px solid #f0d2b2;
+  color: #b0561f;
+  font-size: 9.5px;
+  font-weight: 800;
+  display: grid;
+  place-items: center;
+}
+
+.sheet__garnish {
+  font-size: 11.5px;
+  line-height: 1.6;
+  padding: 9px 12px;
+  border-radius: 6px;
+  background: #f3f6f1;
+  border: 1px solid #dbe5d7;
+  color: #3f5c3b;
+}
+
+.sheet__photo {
+  float: right;
+  width: 38mm;
+  height: 30mm;
+  object-fit: cover;
+  border-radius: 6px;
+  margin: 0 0 10px 12px;
+  border: 1px solid #e5dcd0;
+}
+
+.sheet__foot {
+  margin-top: 18px;
+  padding-top: 8px;
+  border-top: 1px solid #ecd9c4;
+  display: flex;
+  font-size: 9.5px;
+  color: #a89d92;
+  letter-spacing: 0.03em;
+}
+.sheet__foot span:last-child { margin-left: auto; font-variant-numeric: tabular-nums; }
+
+/* 표지 */
+.cover {
+  text-align: center;
+  padding: 46mm 16mm;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.cover__mark {
+  font-size: 46px;
+  margin-bottom: 14px;
+}
+.cover__eyebrow {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: #e07a2f;
+}
+.cover__title {
+  font-size: 34px;
+  font-weight: 800;
+  letter-spacing: -0.045em;
+  margin-top: 10px;
+  color: #17120e;
+}
+.cover__sub { font-size: 13px; color: #6d6259; margin-top: 8px; }
+.cover__rule {
+  width: 56px;
+  height: 3px;
+  background: #e07a2f;
+  border-radius: 2px;
+  margin: 22px auto;
+}
+.cover__date { font-size: 11px; color: #a89d92; letter-spacing: 0.05em; }
+
+/* 목차 — 항목이 많으면 3단으로 조판해 A4 한 장에 담는다 */
+.toc { columns: 2; column-gap: 12mm; font-size: 11.5px; }
+.toc--dense { columns: 3; column-gap: 8mm; font-size: 10px; }
+
+.toc__item {
+  break-inside: avoid;
+  display: flex;
+  gap: 6px;
+  align-items: baseline;
+  padding: 3.5px 0;
+  border-bottom: 1px dotted #e5dcd0;
+}
+.toc--dense .toc__item { padding: 2px 0; gap: 4px; }
+.toc--dense .toc__cat { font-size: 8.5px; }
+.toc__name { font-weight: 650; color: #17120e; }
+.toc__cat { color: #a89d92; font-size: 10px; margin-left: auto; white-space: nowrap; }
+
+/* ================================================== @media print */
+
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 12mm 10mm;
+  }
+
+  html,
+  body {
+    background: #fff !important;
+    color: #000 !important;
+  }
+
+  /* UI 요소는 인쇄에서 제외 */
+  .header,
+  .toolbar,
+  .selectionbar,
+  .printview__bar,
+  .skip-link,
+  .footer,
+  .pager,
+  .detail__actions,
+  .no-print {
+    display: none !important;
+  }
+
+  .printview {
+    background: #fff !important;
+    padding: 0 !important;
+  }
+
+  .printview__paper {
+    max-width: none;
+    margin: 0;
+    display: block;
+  }
+
+  .sheet {
+    box-shadow: none !important;
+    border-radius: 0;
+    padding: 0;
+    break-after: page;
+    page-break-after: always;
+  }
+  .sheet:last-child {
+    break-after: auto;
+    page-break-after: auto;
+  }
+
+  /* 표·단계·목차 항목이 페이지 경계에서 잘리지 않게 */
+  .sheet__section,
+  .sheet__garnish,
+  .toc__item,
+  .sheet__steps li,
+  .sheet__table tr {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .sheet__table thead { display: table-header-group; }
+
+  /* 배경색을 인쇄에 살린다 (사용자가 '배경 그래픽' 을 켰을 때) */
+  * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  a { text-decoration: none; color: inherit; }
+}

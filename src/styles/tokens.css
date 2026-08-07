@@ -1,0 +1,147 @@
+/* ------------------------------------------------------------------
+   디자인 토큰 — "주방의 스테인리스 위에 놓인 향신료"
+   라이트가 기본. 다크는 (1) 시스템 설정 (2) data-theme="dark" 양쪽에서 동작.
+   ------------------------------------------------------------------ */
+
+:root {
+  /* 강조 */
+  --saffron: #e07a2f;
+  --saffron-soft: #f4a55f;
+  --paprika: #b03a1e;
+  --cardamom: #4f7a4a;
+
+  /* 표면 */
+  --bg: #faf7f2;
+  --bg-sunken: #f2ece3;
+  --surface: #ffffff;
+  --surface-2: #fbf8f4;
+  --surface-hover: #f6f1e9;
+
+  /* 텍스트 */
+  --text: #1b1714;
+  --text-muted: #6d6259;
+  --text-faint: #9a8e83;
+  --on-accent: #ffffff;
+
+  /* 선 */
+  --border: #e5dcd0;
+  --border-strong: #d2c5b4;
+
+  /* 강조 배경 */
+  --accent-wash: #fdf0e4;
+  --accent-line: #f0d2b2;
+
+  /* 요리 사진은 흰 배경 컷아웃이다. 어두운 테마에서 흰 판이 튀지 않도록
+     사진 영역의 바탕과 밝기를 토큰으로 분리한다. */
+  --photo-plate: linear-gradient(160deg, #ffffff, #f6f1e9);
+  --photo-filter: none;
+
+  /* 그림자 */
+  --shadow-sm: 0 1px 2px rgb(40 28 16 / 0.06), 0 1px 3px rgb(40 28 16 / 0.05);
+  --shadow-md: 0 2px 4px rgb(40 28 16 / 0.05), 0 8px 20px -6px rgb(40 28 16 / 0.12);
+  --shadow-lg: 0 4px 8px rgb(40 28 16 / 0.06), 0 20px 44px -12px rgb(40 28 16 / 0.2);
+
+  /* 형태 */
+  --r-sm: 8px;
+  --r-md: 12px;
+  --r-lg: 16px;
+  --r-xl: 22px;
+  --r-full: 999px;
+
+  /* 리듬 */
+  --gap: 16px;
+  --pad-page: clamp(16px, 4vw, 40px);
+  --header-h: 60px;
+
+  /* 모션 */
+  --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --t-fast: 120ms var(--ease);
+  --t-mid: 200ms var(--ease);
+
+  /* 서체 */
+  --font-sans: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont,
+    "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", system-ui, sans-serif;
+  --font-num: ui-rounded, "SF Pro Rounded", var(--font-sans);
+
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --saffron: #f0954a;
+    --saffron-soft: #f7b978;
+    --paprika: #d9563a;
+    --cardamom: #7fa87a;
+
+    --bg: #141210;
+    --bg-sunken: #0e0c0b;
+    --surface: #1e1b18;
+    --surface-2: #232019;
+    --surface-hover: #2a2620;
+
+    --text: #f2ede6;
+    --text-muted: #a89d92;
+    --text-faint: #7d7267;
+    --on-accent: #1b1410;
+
+    --border: #322d27;
+    --border-strong: #453e36;
+
+    --accent-wash: #2b2018;
+    --accent-line: #4a3623;
+
+    --photo-plate: linear-gradient(160deg, #e9e2d8, #d8d0c4);
+    --photo-filter: brightness(0.9) contrast(1.02) saturate(1.04);
+
+    --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.4);
+    --shadow-md: 0 2px 4px rgb(0 0 0 / 0.3), 0 8px 20px -6px rgb(0 0 0 / 0.5);
+    --shadow-lg: 0 4px 8px rgb(0 0 0 / 0.3), 0 20px 44px -12px rgb(0 0 0 / 0.6);
+
+    color-scheme: dark;
+  }
+}
+
+:root[data-theme="dark"] {
+  --saffron: #f0954a;
+  --saffron-soft: #f7b978;
+  --paprika: #d9563a;
+  --cardamom: #7fa87a;
+
+  --bg: #141210;
+  --bg-sunken: #0e0c0b;
+  --surface: #1e1b18;
+  --surface-2: #232019;
+  --surface-hover: #2a2620;
+
+  --text: #f2ede6;
+  --text-muted: #a89d92;
+  --text-faint: #7d7267;
+  --on-accent: #1b1410;
+
+  --border: #322d27;
+  --border-strong: #453e36;
+
+  --accent-wash: #2b2018;
+  --accent-line: #4a3623;
+
+  --photo-plate: linear-gradient(160deg, #e9e2d8, #d8d0c4);
+  --photo-filter: brightness(0.9) contrast(1.02) saturate(1.04);
+
+  --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.4);
+  --shadow-md: 0 2px 4px rgb(0 0 0 / 0.3), 0 8px 20px -6px rgb(0 0 0 / 0.5);
+  --shadow-lg: 0 4px 8px rgb(0 0 0 / 0.3), 0 20px 44px -12px rgb(0 0 0 / 0.6);
+
+  color-scheme: dark;
+}
+
+/* 대분류별 색 — 배지·플레이스홀더에 사용 */
+:root {
+  --g-커리: #e07a2f;
+  --g-탄두리: #c04a2a;
+  --g-스낵: #c9963a;
+  --g-빵류: #a8792f;
+  --g-밥면: #7f8c3f;
+  --g-수프샐러드: #4f7a4a;
+  --g-디저트음료: #9d5f8c;
+  --g-세트: #5b6f96;
+}
