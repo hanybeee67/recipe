@@ -1,0 +1,36 @@
+# Render 배포 설계도 (Blueprint)
+#
+# 사용법: Render 대시보드 -> New + -> Blueprint -> 이 저장소 선택.
+# render.yaml 을 읽어 정적 사이트를 자동으로 만든다. 이후 이 브랜치에
+# 푸시할 때마다 재배포된다.
+#
+# 빌드는 recipes/*.md 를 검증해 recipes.json 을 만든 뒤 Vite 로 정적 파일을
+# 뽑는다. 원본 xlsx 변환(파이썬)은 이미 커밋되어 있으므로 배포 시에는
+# 필요하지 않다.
+
+services:
+  - type: web
+    name: everest-recipe-book
+    runtime: static
+    plan: free
+    buildCommand: npm ci && npm run build
+    staticPublishPath: ./dist
+    pullRequestPreviewsEnabled: false
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+    headers:
+      # 해시가 붙은 번들은 영구 캐시
+      - path: /assets/*
+        name: Cache-Control
+        value: public, max-age=31536000, immutable
+      # 요리 사진은 파일명이 레시피 id 로 고정이라 하루만 캐시
+      - path: /images/*
+        name: Cache-Control
+        value: public, max-age=86400
+      - path: /*
+        name: X-Content-Type-Options
+        value: nosniff
+      - path: /*
+        name: Referrer-Policy
+        value: strict-origin-when-cross-origin
