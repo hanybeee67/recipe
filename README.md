@@ -74,7 +74,7 @@ src/data/recipes.json                            ← 앱이 import
 `scripts/build-recipes.mjs` 는 아래를 검사하고 위반 시 빌드를 실패시킨다.
 
 - `id` ↔ 파일명 일치 / `id` 유일성
-- 필수 필드와 타입, `group` 이 고정 8종인지
+- 필수 필드와 타입, `group` 이 고정 9종인지, `order` 가 중복되지 않는지
 - `ingredientCount` · `stepCount` 가 본문 실제 개수와 일치하는지
 - `image` 로 지정한 파일이 `public/` 에 실제로 있는지
 - 재료 표 헤더가 `# / 재료명 / 수량 / 비고` 인지
@@ -99,10 +99,10 @@ md 를 직접 손봤다면 그 수정분은 사라지므로, 원본 xlsx 를 함
 data/                    원본 엑셀
 tools/convert_xlsx.py    xlsx -> md + 이미지
 recipes/                 레시피 87개 (md, 스키마는 레시피_데이터_템플릿.md)
-public/images/recipes/   요리 사진 83장
+public/images/recipes/   요리 사진 84장
 scripts/build-recipes.mjs  md -> json + 스키마 검증
 src/
-  types.ts               Recipe / Filters 타입, 대분류 8종
+  types.ts               Recipe / Filters 타입, 대분류 9종
   lib/
     hangul.ts            초성 변환
     search.ts            검색 인덱스 · 필터 · 정렬 · 하이라이트
