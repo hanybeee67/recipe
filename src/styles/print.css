@@ -185,14 +185,25 @@
   color: #3f5c3b;
 }
 
-.sheet__photo {
+.sheet__figure {
   float: right;
+  width: 38mm;
+  margin: 0 0 10px 12px;
+}
+
+.sheet__photo {
   width: 38mm;
   height: 30mm;
   object-fit: cover;
   border-radius: 6px;
-  margin: 0 0 10px 12px;
   border: 1px solid #e5dcd0;
+}
+
+.sheet__figure figcaption {
+  margin-top: 4px;
+  font-size: 8px;
+  line-height: 1.35;
+  color: #a89d92;
 }
 
 .sheet__foot {

@@ -3,12 +3,14 @@ id: raita-spiced-yogurt
 name: 라이따
 nameEn: "Raita - Spiced Yogurt"
 category: 사이드/디저트
-group: 디저트·음료
+group: 디저트
 serving: 1인분 기준
 cookTime: 약 3~5분
 cookTimeMin: 3
 cookTimeMax: 5
 image: "images/recipes/raita-spiced-yogurt.png"
+imageNote: null
+order: 7220081
 ingredientCount: 7
 stepCount: 5
 tags:

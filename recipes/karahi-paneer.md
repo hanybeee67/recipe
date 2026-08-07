@@ -9,6 +9,8 @@ cookTime: 약 5~8분
 cookTimeMin: 5
 cookTimeMax: 8
 image: "images/recipes/karahi-paneer.png"
+imageNote: null
+order: 30019
 ingredientCount: 10
 stepCount: 5
 tags:

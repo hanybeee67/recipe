@@ -1,3 +1,4 @@
+/** 메뉴판 순서. 목록 탭·정렬·PDF 목차가 모두 이 순서를 따른다. */
 export const GROUPS = [
   "커리",
   "탄두리",
@@ -5,8 +6,9 @@ export const GROUPS = [
   "빵류",
   "밥·면",
   "수프·샐러드",
-  "디저트·음료",
   "세트",
+  "디저트",
+  "음료",
 ] as const;
 
 export type Group = (typeof GROUPS)[number];
@@ -29,13 +31,17 @@ export interface Recipe {
   cookTimeMin: number;
   cookTimeMax: number;
   image: string | null;
+  /** 원본 사진이 아닐 때 그 출처 설명 (예: 다른 메뉴 사진을 빌려온 경우) */
+  imageNote: string | null;
+  /** 메뉴판 정렬 키 — 대분류 → 세부 카테고리 → 개별 메뉴 */
+  order: number;
   tags: string[];
   ingredients: Ingredient[];
   steps: string[];
   garnish: string;
 }
 
-export type SortKey = "name" | "time" | "ingredients";
+export type SortKey = "menu" | "name" | "time" | "ingredients";
 
 export interface Filters {
   q: string;
@@ -54,5 +60,5 @@ export const EMPTY_FILTERS: Filters = {
   categories: [],
   maxTime: 0,
   exclude: [],
-  sort: "name",
+  sort: "menu",
 };

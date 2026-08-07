@@ -9,6 +9,8 @@ cookTime: 약 5~8분
 cookTimeMin: 5
 cookTimeMax: 8
 image: "images/recipes/hot-sour-soup.png"
+imageNote: null
+order: 5170071
 ingredientCount: 8
 stepCount: 5
 tags:

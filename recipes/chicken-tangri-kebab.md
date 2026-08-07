@@ -9,6 +9,8 @@ cookTime: 약 8~10분
 cookTimeMin: 8
 cookTimeMax: 10
 image: "images/recipes/chicken-tangri-kebab.png"
+imageNote: null
+order: 1090039
 ingredientCount: 8
 stepCount: 5
 tags:

@@ -9,6 +9,8 @@ cookTime: 약 3~5분
 cookTimeMin: 3
 cookTimeMax: 5
 image: "images/recipes/aloo-gobi.png"
+imageNote: null
+order: 40025
 ingredientCount: 6
 stepCount: 5
 tags:

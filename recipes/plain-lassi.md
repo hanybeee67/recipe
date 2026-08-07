@@ -3,12 +3,14 @@ id: plain-lassi
 name: 플레인 라씨
 nameEn: Plain Lassi
 category: 음료
-group: 디저트·음료
+group: 음료
 serving: 1인분 기준
 cookTime: 약 3~5분
 cookTimeMin: 3
 cookTimeMax: 5
 image: "images/recipes/plain-lassi.png"
+imageNote: null
+order: 8230082
 ingredientCount: 4
 stepCount: 4
 tags:

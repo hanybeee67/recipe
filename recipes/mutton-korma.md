@@ -9,6 +9,8 @@ cookTime: 약 3~5분
 cookTimeMin: 3
 cookTimeMax: 5
 image: "images/recipes/mutton-korma.png"
+imageNote: null
+order: 20013
 ingredientCount: 6
 stepCount: 4
 tags:

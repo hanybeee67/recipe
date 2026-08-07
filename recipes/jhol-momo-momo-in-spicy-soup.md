@@ -9,6 +9,8 @@ cookTime: 약 8~10분
 cookTimeMin: 8
 cookTimeMax: 10
 image: "images/recipes/jhol-momo-momo-in-spicy-soup.png"
+imageNote: null
+order: 2100043
 ingredientCount: 9
 stepCount: 5
 tags:

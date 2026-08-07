@@ -9,6 +9,8 @@ cookTime: 약 3~5분
 cookTimeMin: 3
 cookTimeMax: 5
 image: "images/recipes/special-curry-chicken.png"
+imageNote: null
+order: 8
 ingredientCount: 8
 stepCount: 5
 tags:

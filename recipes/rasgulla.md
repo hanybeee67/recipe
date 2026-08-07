@@ -3,12 +3,14 @@ id: rasgulla
 name: 라스굴라
 nameEn: Rasgulla
 category: 디저트
-group: 디저트·음료
+group: 디저트
 serving: 1인분 기준
 cookTime: 약 3~5분
 cookTimeMin: 3
 cookTimeMax: 5
 image: images/recipes/rasgulla.png
+imageNote: null
+order: 7200079
 ingredientCount: 2
 stepCount: 4
 tags:

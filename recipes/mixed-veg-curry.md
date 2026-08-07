@@ -9,6 +9,8 @@ cookTime: 약 3~5분
 cookTimeMin: 3
 cookTimeMax: 5
 image: "images/recipes/mixed-veg-curry.png"
+imageNote: null
+order: 40028
 ingredientCount: 5
 stepCount: 5
 tags:

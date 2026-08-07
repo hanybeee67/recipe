@@ -14,7 +14,7 @@ const RECIPES_DIR = join(ROOT, "recipes");
 const PUBLIC_DIR = join(ROOT, "public");
 const OUT_FILE = join(ROOT, "src", "data", "recipes.json");
 
-const VALID_GROUPS = ["커리", "탄두리", "스낵", "빵류", "밥·면", "수프·샐러드", "디저트·음료", "세트"];
+const VALID_GROUPS = ["커리", "탄두리", "스낵", "빵류", "밥·면", "수프·샐러드", "세트", "디저트", "음료"];
 const TABLE_HEADER = ["#", "재료명", "수량", "비고"];
 
 const errors = [];
@@ -181,12 +181,12 @@ for (const file of files) {
   for (const key of ["name", "nameEn", "category", "group", "serving", "cookTime"]) {
     if (typeof fm[key] !== "string") fail(file, `필수 문자열 필드 누락: ${key}`);
   }
-  for (const key of ["cookTimeMin", "cookTimeMax", "ingredientCount", "stepCount"]) {
+  for (const key of ["cookTimeMin", "cookTimeMax", "ingredientCount", "stepCount", "order"]) {
     if (typeof fm[key] !== "number") fail(file, `필수 숫자 필드 누락: ${key}`);
   }
   if (!Array.isArray(fm.tags)) fail(file, "tags 는 배열이어야 합니다");
 
-  // 4) group 고정 8종
+  // 4) group 고정 9종
   if (!VALID_GROUPS.includes(fm.group)) fail(file, `허용되지 않은 group: ${fm.group}`);
 
   const sections = splitSections(body);
@@ -216,11 +216,23 @@ for (const file of files) {
     cookTimeMin: fm.cookTimeMin,
     cookTimeMax: fm.cookTimeMax,
     image: fm.image ?? null,
+    imageNote: fm.imageNote ?? null,
+    order: fm.order,
     tags: fm.tags,
     ingredients,
     steps,
     garnish,
   });
+}
+
+// 메뉴판 순서로 내보낸다 — 앱·PDF 목차가 이 순서를 그대로 쓴다
+recipes.sort((a, b) => a.order - b.order || a.name.localeCompare(b.name, "ko"));
+
+// 7) order 중복 — 두 메뉴의 순서가 같으면 나열 순서가 불안정해진다
+for (let i = 1; i < recipes.length; i += 1) {
+  if (recipes[i].order === recipes[i - 1].order) {
+    fail(`${recipes[i].id}.md`, `order 값이 ${recipes[i - 1].id} 와 중복 (${recipes[i].order})`);
+  }
 }
 
 if (errors.length) {
@@ -229,8 +241,6 @@ if (errors.length) {
   console.error("");
   process.exit(1);
 }
-
-recipes.sort((a, b) => a.name.localeCompare(b.name, "ko"));
 
 mkdirSync(dirname(OUT_FILE), { recursive: true });
 writeFileSync(OUT_FILE, JSON.stringify(recipes, null, 0) + "\n", "utf8");

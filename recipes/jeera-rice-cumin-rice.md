@@ -9,6 +9,8 @@ cookTime: 약 5~8분
 cookTimeMin: 5
 cookTimeMax: 8
 image: "images/recipes/jeera-rice-cumin-rice.png"
+imageNote: null
+order: 4130062
 ingredientCount: 4
 stepCount: 6
 tags:

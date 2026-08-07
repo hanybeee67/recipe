@@ -9,6 +9,8 @@ cookTime: 약 8~10분
 cookTimeMin: 8
 cookTimeMax: 10
 image: "images/recipes/tandoori-tikka-salad.png"
+imageNote: null
+order: 5180074
 ingredientCount: 13
 stepCount: 5
 tags:

@@ -9,6 +9,8 @@ cookTime: 약 3~5분
 cookTimeMin: 3
 cookTimeMax: 5
 image: "images/recipes/chicken-masala.png"
+imageNote: null
+order: 1
 ingredientCount: 8
 stepCount: 6
 tags:

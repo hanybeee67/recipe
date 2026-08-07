@@ -9,6 +9,8 @@ cookTime: 약 8~10분
 cookTimeMin: 8
 cookTimeMax: 10
 image: "images/recipes/thukpa-nepali-noodle-soup.png"
+imageNote: null
+order: 4160068
 ingredientCount: 12
 stepCount: 6
 tags:

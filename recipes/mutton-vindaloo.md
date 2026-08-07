@@ -9,6 +9,8 @@ cookTime: 약 3~5분
 cookTimeMin: 3
 cookTimeMax: 5
 image: "images/recipes/mutton-vindaloo.png"
+imageNote: null
+order: 20014
 ingredientCount: 6
 stepCount: 6
 tags:

@@ -9,6 +9,8 @@ cookTime: 약 5~8분
 cookTimeMin: 5
 cookTimeMax: 8
 image: "images/recipes/masala-papad.png"
+imageNote: null
+order: 2100051
 ingredientCount: 9
 stepCount: 6
 tags:

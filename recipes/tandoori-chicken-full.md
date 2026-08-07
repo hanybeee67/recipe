@@ -9,6 +9,8 @@ cookTime: 약 8~10분
 cookTimeMin: 8
 cookTimeMax: 10
 image: "images/recipes/tandoori-chicken-full.png"
+imageNote: null
+order: 1090035
 ingredientCount: 9
 stepCount: 6
 tags:

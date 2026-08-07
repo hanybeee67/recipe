@@ -9,6 +9,8 @@ cookTime: 약 5~8분
 cookTimeMin: 5
 cookTimeMax: 8
 image: "images/recipes/ginger-chicken.png"
+imageNote: null
+order: 10010
 ingredientCount: 7
 stepCount: 5
 tags:

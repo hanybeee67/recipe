@@ -9,6 +9,8 @@ cookTime: 약 5~7분
 cookTimeMin: 5
 cookTimeMax: 7
 image: "images/recipes/chow-mein.png"
+imageNote: null
+order: 4140066
 ingredientCount: 10
 stepCount: 6
 tags:

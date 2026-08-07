@@ -9,6 +9,8 @@ cookTime: 약 5~7분
 cookTimeMin: 5
 cookTimeMax: 7
 image: "images/recipes/aloo-dum.png"
+imageNote: null
+order: 2100049
 ingredientCount: 11
 stepCount: 6
 tags:

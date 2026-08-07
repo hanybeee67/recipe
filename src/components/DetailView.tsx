@@ -74,11 +74,13 @@ export function DetailView({ recipe, filters, siblings }: Props) {
             {src ? (
               <img src={src} alt={`${recipe.name} 완성 사진`} />
             ) : (
-              <div className="card__placeholder" aria-hidden="true">
-                {GROUP_EMOJI[recipe.group] ?? "🍽️"}
+              <div className="card__placeholder">
+                <span aria-hidden="true">{GROUP_EMOJI[recipe.group] ?? "🍽️"}</span>
+                <span className="card__placeholder-text">사진 없음</span>
               </div>
             )}
           </div>
+          {recipe.imageNote && <p className="detail__media-note">※ {recipe.imageNote}</p>}
 
           <div className="stats">
             <div className="stat">

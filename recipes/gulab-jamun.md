@@ -3,12 +3,14 @@ id: gulab-jamun
 name: 굴랍자문
 nameEn: Gulab Jamun
 category: 디저트
-group: 디저트·음료
+group: 디저트
 serving: 1인분 기준
 cookTime: 약 3~5분
 cookTimeMin: 3
 cookTimeMax: 5
 image: "images/recipes/gulab-jamun.png"
+imageNote: null
+order: 7200078
 ingredientCount: 2
 stepCount: 3
 tags:

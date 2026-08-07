@@ -9,6 +9,8 @@ cookTime: 약 5~8분
 cookTimeMin: 5
 cookTimeMax: 8
 image: "images/recipes/chicken-soup.png"
+imageNote: null
+order: 5170069
 ingredientCount: 5
 stepCount: 5
 tags:

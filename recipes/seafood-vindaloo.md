@@ -9,6 +9,8 @@ cookTime: 약 3~5분
 cookTimeMin: 3
 cookTimeMax: 5
 image: "images/recipes/seafood-vindaloo.png"
+imageNote: null
+order: 80033
 ingredientCount: 7
 stepCount: 5
 tags:

@@ -9,6 +9,8 @@ cookTime: 약 5~8분
 cookTimeMin: 5
 cookTimeMax: 8
 image: "images/recipes/chicken-chili.png"
+imageNote: null
+order: 2100048
 ingredientCount: 14
 stepCount: 6
 tags:

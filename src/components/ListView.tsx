@@ -13,6 +13,7 @@ const TIME_OPTIONS = [
 ];
 
 const SORT_LABEL: Record<SortKey, string> = {
+  menu: "분류순 (메뉴판)",
   name: "이름순",
   time: "조리시간 짧은순",
   ingredients: "재료 적은순",
@@ -80,10 +81,10 @@ export function ListView({
     return counts;
   }, [index, filters]);
 
-  // 세부 카테고리 후보는 현재 대분류 안에서만 보여준다.
+  // 세부 카테고리 후보는 현재 대분류 안에서만, 메뉴판 순서대로 보여준다.
   const categoryOptions = useMemo(() => {
     const pool = filters.group === "전체" ? recipes : recipes.filter((r) => r.group === filters.group);
-    return [...new Set(pool.map((r) => r.category))].sort((a, b) => a.localeCompare(b, "ko"));
+    return [...new Set([...pool].sort((a, b) => a.order - b.order).map((r) => r.category))];
   }, [recipes, filters.group]);
 
   const excludeOptions = useMemo(() => commonIngredients(recipes), [recipes]);

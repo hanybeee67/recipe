@@ -9,6 +9,8 @@ cookTime: 약 5~7분
 cookTimeMin: 5
 cookTimeMax: 7
 image: "images/recipes/green-salad.png"
+imageNote: null
+order: 5180072
 ingredientCount: 5
 stepCount: 4
 tags:

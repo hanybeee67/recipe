@@ -9,6 +9,8 @@ cookTime: 약 5~8분
 cookTimeMin: 5
 cookTimeMax: 8
 image: "images/recipes/karahi-chicken.png"
+imageNote: null
+order: 7
 ingredientCount: 10
 stepCount: 6
 tags:

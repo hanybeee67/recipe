@@ -49,14 +49,93 @@ GROUP_BY_CATEGORY = {
     "국수 수프": "밥·면",
     "수프": "수프·샐러드",
     "샐러드": "수프·샐러드",
-    "디저트": "디저트·음료",
-    "음료": "디저트·음료",
-    "디저트/사이드": "디저트·음료",
-    "사이드/디저트": "디저트·음료",
+    "디저트": "디저트",
+    "디저트/사이드": "디저트",
+    "사이드/디저트": "디저트",
+    "음료": "음료",
     "세트 메뉴": "세트",
 }
 
-VALID_GROUPS = {"커리", "탄두리", "스낵", "빵류", "밥·면", "수프·샐러드", "디저트·음료", "세트"}
+# 메뉴판 순서. 목록·목차·PDF 모두 이 순서를 따른다.
+GROUP_ORDER = [
+    "커리",
+    "탄두리",
+    "스낵",
+    "빵류",
+    "밥·면",
+    "수프·샐러드",
+    "세트",
+    "디저트",
+    "음료",
+]
+
+VALID_GROUPS = set(GROUP_ORDER)
+
+# 대분류 안에서 세부 카테고리 순서
+CATEGORY_ORDER = [
+    # 커리 — 치킨 → 머턴 → 야채 → 계란 → 해산물
+    "닭고기 카레", "닭고기 요리", "양고기 카레",
+    "채식 카레", "베지 카레", "콩 카레", "계란 카레",
+    "새우 카레", "해산물 카레",
+    "탄두리 요리",
+    "스낵", "사이드 메뉴",
+    "빵류",
+    "밥류", "볶음면", "채식 볶음면", "국수 수프",
+    "수프", "샐러드",
+    "세트 메뉴",
+    "디저트", "디저트/사이드", "사이드/디저트",
+    "음료",
+]
+
+# 카테고리 안에서 개별 메뉴 순서. 여기 없는 메뉴는 뒤에 이름순으로 붙는다.
+ITEM_ORDER = [
+    # 닭고기 카레
+    "치킨 커리", "치킨 마살라", "치킨 티카 마살라", "치킨머커니", "버터 치킨",
+    "치킨 코르마", "치킨 빈달루", "커다이 치킨", "스페셜 커리치킨", "베이비 커리",
+    "진저 치킨",
+    # 양고기 카레
+    "머턴 커리", "머턴 마살라", "머턴 코르마", "머턴 빈달루", "머턴 도 피아자", "머턴 아차르",
+    # 채식 / 베지 카레
+    "퍼니르 버터 마살라", "마타 퍼니르", "커다이 퍼니르", "머라이 코프타",
+    "알루 펄럭", "머쉬룸 커리", "야채 나바라탄 코르마",
+    "펄럭 퍼니르", "알루 고비", "쩌나 마살라", "달 터드카", "모듬 야채 커리",
+    "달 머커니", "에그 커리",
+    # 새우
+    "프라운커리", "프라운 칠리 커리", "해산물 빈달루",
+    # 탄두리
+    "탄두리치킨(반마리)", "탄두리치킨(한마리)", "치킨 티카", "치킨 멀라이 케밥",
+    "치킨 시크 케밥", "치킨 탕그리 케밥", "머턴 세꾸와", "믹스 탄두리 플래터",
+    # 스낵
+    "모모", "졸 모모", "사모사", "스프링롤", "퍼코다", "퍼니르 퍼코다",
+    "치킨 칠리", "알루덤", "드라이 파펃", "마살라 파펃", "프렌치 프라이",
+    # 빵류 — 난 종류 → 굴자빵 → 알루 파라타 → 탄두리 로티
+    "플레인 난", "버터 난", "갈릭 난", "치즈 난", "허니 난",
+    "굴자빵", "알루 파라타", "탄두리 로티",
+    # 밥류
+    "바스마티 라이스", "지라 라이스", "베지 플로우", "치킨 브리아니", "머턴 브리아니",
+    "자오미엔", "베지 자오미엔", "뚝파",
+    # 수프 / 샐러드
+    "치킨 스프", "머쉬룸 스프", "핫&사워 스프",
+    "그린 샐러드", "아마 타마타라 샐러드", "탄두리 티카 샐러드",
+    # 세트
+    "A set (2인)", "B set (3인)", "C set (3인)",
+    # 디저트
+    "굴랍자문", "라스굴라", "더히", "라이따",
+    # 음료
+    "플레인 라씨", "딸기 라씨", "망고 라씨", "네팔 찌야", "마살라 찌야",
+]
+
+GROUP_INDEX = {g: i for i, g in enumerate(GROUP_ORDER)}
+CATEGORY_INDEX = {c: i for i, c in enumerate(CATEGORY_ORDER)}
+ITEM_INDEX = {n: i for i, n in enumerate(ITEM_ORDER)}
+
+
+def menu_order(recipe: dict) -> int:
+    """메뉴판 정렬 키. 대분류 → 세부 카테고리 → 개별 메뉴 순."""
+    g = GROUP_INDEX.get(recipe["group"], len(GROUP_ORDER))
+    c = CATEGORY_INDEX.get(recipe["category"], len(CATEGORY_ORDER))
+    i = ITEM_INDEX.get(recipe["name"], len(ITEM_ORDER))
+    return g * 1_000_000 + c * 10_000 + i
 
 # ------------------------------------------------------- 태그 자동 도출 규칙
 # 두 개의 스코프로 나눈다. 단일 음절 키워드("난", "면", "밥")를 재료명 전체에
@@ -169,6 +248,34 @@ def extract_image(xlsx_path: Path, member: str, dest: Path) -> None:
     dest.parent.mkdir(parents=True, exist_ok=True)
     with zipfile.ZipFile(xlsx_path) as z, z.open(member) as src, open(dest, "wb") as out:
         shutil.copyfileobj(src, out)
+
+
+# ------------------------------------------------- 원본에 사진이 없는 메뉴 보완
+#
+# 원본 xlsx 87시트 중 4개(허니 난, A/B/C set)에는 그림이 들어있지 않다.
+# 원본 자체가 유사 메뉴끼리 사진을 공유하므로(치킨/머턴/에그 커리가 한 장을
+# 같이 씀) 난 종류는 같은 방식으로 채우고, 어디서 온 사진인지 imageNote 에
+# 남긴다. 세트 메뉴(A/B/C set)는 대표 사진을 만들지 않고 비워 둔다.
+
+# 대체: 레시피 id -> (가져올 레시피 id, 설명)
+IMAGE_SUBSTITUTE = {
+    "honey-naan": ("plain-naan", "플레인 난 사진 (원본에 허니 난 사진 없음)"),
+}
+
+
+def build_missing_images(images_dir: Path) -> dict[str, tuple[str, str]]:
+    """대체 이미지를 만들고 {id: (경로, 설명)} 을 돌려준다."""
+    made: dict[str, tuple[str, str]] = {}
+
+    for rid, (source_id, note) in IMAGE_SUBSTITUTE.items():
+        src = images_dir / f"{source_id}.png"
+        if not src.exists():
+            continue
+        dest = images_dir / f"{rid}.png"
+        shutil.copyfile(src, dest)
+        made[rid] = (f"images/recipes/{dest.name}", note)
+
+    return made
 
 
 # ------------------------------------------------------------------ 시트 파싱
@@ -305,6 +412,8 @@ def render_markdown(r: dict) -> str:
         f"cookTimeMin: {r['cookTimeMin']}",
         f"cookTimeMax: {r['cookTimeMax']}",
         f"image: {yaml_str(r['image']) if r['image'] else 'null'}",
+        f"imageNote: {yaml_str(r['imageNote']) if r.get('imageNote') else 'null'}",
+        f"order: {r['order']}",
         f"ingredientCount: {len(r['ingredients'])}",
         f"stepCount: {len(r['steps'])}",
         "tags:" if r["tags"] else "tags: []",
@@ -381,9 +490,10 @@ def main() -> int:
             r["image"] = f"images/recipes/{dest.name}"
         else:
             r["image"] = None
-            warnings.append(f"[사진 없음] {ws.title}")
 
+        r["imageNote"] = None
         r["tags"] = derive_tags(r)
+        r["order"] = menu_order(r)
 
         # 무결성 점검
         if not r["ingredients"]:
@@ -392,17 +502,35 @@ def main() -> int:
             warnings.append(f"[조리단계 0건] {ws.title}")
         if r["group"] not in VALID_GROUPS:
             warnings.append(f"[group 값 오류] {ws.title} -> {r['group']}")
+        if r["category"] not in CATEGORY_INDEX:
+            warnings.append(f"[카테고리 순서 미지정] {ws.title} -> {r['category']}")
+        if r["name"] not in ITEM_INDEX:
+            warnings.append(f"[메뉴 순서 미지정] {ws.title}")
 
-        (RECIPES_DIR / f"{rid}.md").write_text(render_markdown(r), encoding="utf-8")
         results.append(r)
 
+    # 원본에 사진이 없는 메뉴를 대체·합성으로 채운다 (모든 원본 추출 후 실행)
+    from_source = sum(1 for r in results if r["image"])
+    filled = build_missing_images(IMAGES_DIR)
+    for r in results:
+        if r["image"] is None and r["id"] in filled:
+            r["image"], r["imageNote"] = filled[r["id"]]
+
+    for r in results:
+        if r["image"] is None:
+            warnings.append(f"[사진 없음] {r['name']}")
+        (RECIPES_DIR / f"{r['id']}.md").write_text(render_markdown(r), encoding="utf-8")
+
     print(f"레시피 {len(results)}개 -> {RECIPES_DIR.relative_to(ROOT)}/")
-    print(f"사진 {sum(1 for r in results if r['image'])}개 -> {IMAGES_DIR.relative_to(ROOT)}/")
+    print(
+        f"사진 {sum(1 for r in results if r['image'])}개 "
+        f"(원본 {from_source} + 보완 {len(filled)}) -> {IMAGES_DIR.relative_to(ROOT)}/"
+    )
 
     groups: dict[str, int] = {}
     for r in results:
         groups[r["group"]] = groups.get(r["group"], 0) + 1
-    print("대분류:", json.dumps(groups, ensure_ascii=False))
+    print("대분류:", json.dumps({g: groups.get(g, 0) for g in GROUP_ORDER}, ensure_ascii=False))
 
     if warnings:
         print(f"\n경고 {len(warnings)}건")

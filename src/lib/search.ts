@@ -103,10 +103,10 @@ export function search(index: SearchIndexEntry[], rawQuery: string): SearchHit[]
 }
 
 const SORTERS: Record<SortKey, (a: Recipe, b: Recipe) => number> = {
+  menu: (a, b) => a.order - b.order,
   name: (a, b) => a.name.localeCompare(b.name, "ko"),
-  time: (a, b) => a.cookTimeMax - b.cookTimeMax || a.name.localeCompare(b.name, "ko"),
-  ingredients: (a, b) =>
-    a.ingredients.length - b.ingredients.length || a.name.localeCompare(b.name, "ko"),
+  time: (a, b) => a.cookTimeMax - b.cookTimeMax || a.order - b.order,
+  ingredients: (a, b) => a.ingredients.length - b.ingredients.length || a.order - b.order,
 };
 
 export function applyFilters(index: SearchIndexEntry[], filters: Filters): SearchHit[] {
@@ -131,8 +131,9 @@ export function applyFilters(index: SearchIndexEntry[], filters: Filters): Searc
     });
   }
 
+  // 검색 중이고 정렬을 따로 고르지 않았다면 관련도를 먼저 본다.
   const sorter = SORTERS[filters.sort];
-  const useRelevance = filters.q.trim().length > 0 && filters.sort === "name";
+  const useRelevance = filters.q.trim().length > 0 && filters.sort === "menu";
   hits.sort((a, b) =>
     useRelevance ? a.score - b.score || sorter(a.recipe, b.recipe) : sorter(a.recipe, b.recipe)
   );

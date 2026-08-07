@@ -9,6 +9,8 @@ cookTime: 약 5~8분
 cookTimeMin: 5
 cookTimeMax: 8
 image: "images/recipes/aloo-paratha.png"
+imageNote: null
+order: 3120059
 ingredientCount: 8
 stepCount: 5
 tags:

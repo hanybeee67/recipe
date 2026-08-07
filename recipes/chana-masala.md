@@ -9,6 +9,8 @@ cookTime: 약 3~5분
 cookTimeMin: 3
 cookTimeMax: 5
 image: "images/recipes/chana-masala.png"
+imageNote: null
+order: 40026
 ingredientCount: 7
 stepCount: 6
 tags:

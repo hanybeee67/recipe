@@ -9,6 +9,8 @@ cookTime: 약 8~10분
 cookTimeMin: 8
 cookTimeMax: 10
 image: "images/recipes/mutton-sekuwa.png"
+imageNote: null
+order: 1090040
 ingredientCount: 11
 stepCount: 5
 tags:

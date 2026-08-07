@@ -9,6 +9,8 @@ cookTime: 약 8~10분
 cookTimeMin: 8
 cookTimeMax: 10
 image: "images/recipes/momo-nepali-dumplings.png"
+imageNote: null
+order: 2100042
 ingredientCount: 10
 stepCount: 6
 tags:

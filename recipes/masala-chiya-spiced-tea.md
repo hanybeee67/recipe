@@ -3,12 +3,14 @@ id: masala-chiya-spiced-tea
 name: 마살라 찌야
 nameEn: "Masala Chiya - Spiced Tea"
 category: 음료
-group: 디저트·음료
+group: 음료
 serving: 1인분 기준
 cookTime: 약 3~5분
 cookTimeMin: 3
 cookTimeMax: 5
 image: "images/recipes/masala-chiya-spiced-tea.png"
+imageNote: null
+order: 8230086
 ingredientCount: 5
 stepCount: 4
 tags:

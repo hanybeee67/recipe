@@ -9,6 +9,8 @@ cookTime: 약 3~5분
 cookTimeMin: 3
 cookTimeMax: 5
 image: "images/recipes/mutton-masala.png"
+imageNote: null
+order: 20012
 ingredientCount: 7
 stepCount: 5
 tags:

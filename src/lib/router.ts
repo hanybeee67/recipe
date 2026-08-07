@@ -6,7 +6,7 @@ export type Route =
   | { name: "detail"; id: string; filters: Filters }
   | { name: "print"; ids: string[]; filters: Filters };
 
-const SORT_KEYS: SortKey[] = ["name", "time", "ingredients"];
+const SORT_KEYS: SortKey[] = ["menu", "name", "time", "ingredients"];
 
 function parseFilters(params: URLSearchParams): Filters {
   const group = params.get("group");
@@ -23,7 +23,7 @@ function parseFilters(params: URLSearchParams): Filters {
     categories: list("cat"),
     maxTime: Number(params.get("max")) || 0,
     exclude: list("ex"),
-    sort: sort && SORT_KEYS.includes(sort as SortKey) ? (sort as SortKey) : "name",
+    sort: sort && SORT_KEYS.includes(sort as SortKey) ? (sort as SortKey) : "menu",
   };
 }
 
@@ -34,7 +34,7 @@ export function serializeFilters(filters: Filters): string {
   if (filters.categories.length) params.set("cat", filters.categories.join(","));
   if (filters.maxTime) params.set("max", String(filters.maxTime));
   if (filters.exclude.length) params.set("ex", filters.exclude.join(","));
-  if (filters.sort !== "name") params.set("sort", filters.sort);
+  if (filters.sort !== "menu") params.set("sort", filters.sort);
   const qs = params.toString();
   return qs ? `?${qs}` : "";
 }

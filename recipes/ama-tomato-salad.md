@@ -9,6 +9,8 @@ cookTime: 약 5~7분
 cookTimeMin: 5
 cookTimeMax: 7
 image: "images/recipes/ama-tomato-salad.png"
+imageNote: null
+order: 5180073
 ingredientCount: 7
 stepCount: 5
 tags:

@@ -9,6 +9,8 @@ cookTime: 약 8~10분
 cookTimeMin: 8
 cookTimeMax: 10
 image: "images/recipes/chicken-seekh-kebab.png"
+imageNote: null
+order: 1090038
 ingredientCount: 9
 stepCount: 5
 tags:

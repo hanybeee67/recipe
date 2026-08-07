@@ -3,12 +3,14 @@ id: mango-lassi
 name: 망고 라씨
 nameEn: Mango Lassi
 category: 음료
-group: 디저트·음료
+group: 음료
 serving: 1인분 기준
 cookTime: 약 3~5분
 cookTimeMin: 3
 cookTimeMax: 5
 image: "images/recipes/mango-lassi.png"
+imageNote: null
+order: 8230084
 ingredientCount: 4
 stepCount: 3
 tags:

@@ -9,6 +9,8 @@ cookTime: 약 5~8분
 cookTimeMin: 5
 cookTimeMax: 8
 image: "images/recipes/dry-papad.png"
+imageNote: null
+order: 2100050
 ingredientCount: 1
 stepCount: 3
 tags:

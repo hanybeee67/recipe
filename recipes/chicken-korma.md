@@ -9,6 +9,8 @@ cookTime: 약 3~5분
 cookTimeMin: 3
 cookTimeMax: 5
 image: "images/recipes/chicken-korma.png"
+imageNote: null
+order: 5
 ingredientCount: 5
 stepCount: 4
 tags:

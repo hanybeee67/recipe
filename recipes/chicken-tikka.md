@@ -9,6 +9,8 @@ cookTime: 약 8~10분
 cookTimeMin: 8
 cookTimeMax: 10
 image: "images/recipes/chicken-tikka.png"
+imageNote: null
+order: 1090036
 ingredientCount: 9
 stepCount: 5
 tags:

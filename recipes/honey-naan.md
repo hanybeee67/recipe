@@ -8,7 +8,9 @@ serving: 1인분 기준
 cookTime: 약 5~8분
 cookTimeMin: 5
 cookTimeMax: 8
-image: null
+image: "images/recipes/honey-naan.png"
+imageNote: 플레인 난 사진 (원본에 허니 난 사진 없음)
+order: 3120057
 ingredientCount: 7
 stepCount: 5
 tags:

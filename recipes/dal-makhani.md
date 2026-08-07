@@ -9,6 +9,8 @@ cookTime: 약 3~5분
 cookTimeMin: 3
 cookTimeMax: 5
 image: "images/recipes/dal-makhani.png"
+imageNote: null
+order: 50029
 ingredientCount: 4
 stepCount: 4
 tags:

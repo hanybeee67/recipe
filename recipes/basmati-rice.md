@@ -9,6 +9,8 @@ cookTime: 약 5~8분
 cookTimeMin: 5
 cookTimeMax: 8
 image: "images/recipes/basmati-rice.png"
+imageNote: null
+order: 4130061
 ingredientCount: 5
 stepCount: 6
 tags:

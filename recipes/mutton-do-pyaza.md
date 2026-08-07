@@ -9,6 +9,8 @@ cookTime: 약 3~5분
 cookTimeMin: 3
 cookTimeMax: 5
 image: "images/recipes/mutton-do-pyaza.png"
+imageNote: null
+order: 20015
 ingredientCount: 5
 stepCount: 5
 tags:

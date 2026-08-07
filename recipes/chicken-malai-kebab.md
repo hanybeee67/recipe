@@ -9,6 +9,8 @@ cookTime: 약 8~10분
 cookTimeMin: 8
 cookTimeMax: 10
 image: "images/recipes/chicken-malai-kebab.png"
+imageNote: null
+order: 1090037
 ingredientCount: 6
 stepCount: 5
 tags:

@@ -22,7 +22,12 @@ function RecipeSheet({ recipe, page, total }: { recipe: Recipe; page: number; to
         <span className="sheet__brand-sub">Recipe Card · {recipe.group}</span>
       </header>
 
-      {src && <img className="sheet__photo" src={src} alt="" />}
+      {src && (
+        <figure className="sheet__figure">
+          <img className="sheet__photo" src={src} alt="" />
+          {recipe.imageNote && <figcaption>※ {recipe.imageNote}</figcaption>}
+        </figure>
+      )}
 
       <h1 className="sheet__title">{recipe.name}</h1>
       <p className="sheet__title-en">{recipe.nameEn}</p>
