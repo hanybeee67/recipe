@@ -1,6 +1,8 @@
 /* ------------------------------------------------------------------
    디자인 토큰 — "주방의 스테인리스 위에 놓인 향신료"
-   라이트가 기본. 다크는 (1) 시스템 설정 (2) data-theme="dark" 양쪽에서 동작.
+   라이트가 기본. 다크는 사용자가 직접 토글해 data-theme="dark" 가 붙었을 때만
+   적용한다 — 시스템 다크를 자동으로 따라가면 카카오톡 인앱 브라우저 등에서
+   검은 화면으로 열려버린다.
    ------------------------------------------------------------------ */
 
 :root {
@@ -11,21 +13,21 @@
   --cardamom: #4f7a4a;
 
   /* 표면 */
-  --bg: #faf7f2;
-  --bg-sunken: #f2ece3;
+  --bg: #fdfcfa;
+  --bg-sunken: #f4f0ea;
   --surface: #ffffff;
-  --surface-2: #fbf8f4;
-  --surface-hover: #f6f1e9;
+  --surface-2: #fbf9f6;
+  --surface-hover: #f7f3ed;
 
   /* 텍스트 */
-  --text: #1b1714;
-  --text-muted: #6d6259;
-  --text-faint: #9a8e83;
+  --text: #1a1613;
+  --text-muted: #6b615a;
+  --text-faint: #9c928a;
   --on-accent: #ffffff;
 
   /* 선 */
-  --border: #e5dcd0;
-  --border-strong: #d2c5b4;
+  --border: #ebe4da;
+  --border-strong: #d8cec0;
 
   /* 강조 배경 */
   --accent-wash: #fdf0e4;
@@ -33,13 +35,13 @@
 
   /* 요리 사진은 흰 배경 컷아웃이다. 어두운 테마에서 흰 판이 튀지 않도록
      사진 영역의 바탕과 밝기를 토큰으로 분리한다. */
-  --photo-plate: linear-gradient(160deg, #ffffff, #f6f1e9);
+  --photo-plate: linear-gradient(160deg, #ffffff, #f7f3ed);
   --photo-filter: none;
 
   /* 그림자 */
-  --shadow-sm: 0 1px 2px rgb(40 28 16 / 0.06), 0 1px 3px rgb(40 28 16 / 0.05);
-  --shadow-md: 0 2px 4px rgb(40 28 16 / 0.05), 0 8px 20px -6px rgb(40 28 16 / 0.12);
-  --shadow-lg: 0 4px 8px rgb(40 28 16 / 0.06), 0 20px 44px -12px rgb(40 28 16 / 0.2);
+  --shadow-sm: 0 1px 2px rgb(60 45 30 / 0.05), 0 1px 3px rgb(60 45 30 / 0.04);
+  --shadow-md: 0 2px 4px rgb(60 45 30 / 0.04), 0 10px 24px -8px rgb(60 45 30 / 0.10);
+  --shadow-lg: 0 4px 8px rgb(60 45 30 / 0.05), 0 24px 50px -14px rgb(60 45 30 / 0.16);
 
   /* 형태 */
   --r-sm: 8px;
@@ -64,41 +66,6 @@
   --font-num: ui-rounded, "SF Pro Rounded", var(--font-sans);
 
   color-scheme: light;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --saffron: #f0954a;
-    --saffron-soft: #f7b978;
-    --paprika: #d9563a;
-    --cardamom: #7fa87a;
-
-    --bg: #141210;
-    --bg-sunken: #0e0c0b;
-    --surface: #1e1b18;
-    --surface-2: #232019;
-    --surface-hover: #2a2620;
-
-    --text: #f2ede6;
-    --text-muted: #a89d92;
-    --text-faint: #7d7267;
-    --on-accent: #1b1410;
-
-    --border: #322d27;
-    --border-strong: #453e36;
-
-    --accent-wash: #2b2018;
-    --accent-line: #4a3623;
-
-    --photo-plate: linear-gradient(160deg, #e9e2d8, #d8d0c4);
-    --photo-filter: brightness(0.9) contrast(1.02) saturate(1.04);
-
-    --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.4);
-    --shadow-md: 0 2px 4px rgb(0 0 0 / 0.3), 0 8px 20px -6px rgb(0 0 0 / 0.5);
-    --shadow-lg: 0 4px 8px rgb(0 0 0 / 0.3), 0 20px 44px -12px rgb(0 0 0 / 0.6);
-
-    color-scheme: dark;
-  }
 }
 
 :root[data-theme="dark"] {

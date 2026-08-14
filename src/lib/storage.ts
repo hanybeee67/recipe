@@ -63,19 +63,22 @@ export function useStepProgress(recipeId: string, stepCount: number) {
 
 // -------------------------------------------------------------------- 테마
 
-export type Theme = "system" | "light" | "dark";
+export type Theme = "light" | "dark";
 
+/**
+ * 라이트가 기본이다. 시스템 다크 모드를 자동으로 따라가면 카카오톡 인앱
+ * 브라우저처럼 다크가 켜진 환경에서 검은 화면으로 열려버리므로, 다크는
+ * 사용자가 직접 켰을 때만 적용한다.
+ */
 export function useTheme() {
-  const [theme, setTheme] = usePersistentState<Theme>("theme", "system");
+  const [theme, setTheme] = usePersistentState<Theme>("theme", "light");
 
   useEffect(() => {
-    const root = document.documentElement;
-    if (theme === "system") root.removeAttribute("data-theme");
-    else root.setAttribute("data-theme", theme);
+    document.documentElement.setAttribute("data-theme", theme);
   }, [theme]);
 
   const cycle = useCallback(() => {
-    setTheme((t) => (t === "system" ? "light" : t === "light" ? "dark" : "system"));
+    setTheme((t) => (t === "light" ? "dark" : "light"));
   }, [setTheme]);
 
   return { theme, setTheme, cycle };

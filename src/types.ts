@@ -39,6 +39,34 @@ export interface Recipe {
   ingredients: Ingredient[];
   steps: string[];
   garnish: string;
+  /** 영어 번역층. i18n/en/*.json 에서 빌드 시 병합된다. */
+  en: RecipeTranslation;
+}
+
+export interface RecipeTranslation {
+  group: string;
+  category: string;
+  serving: string;
+  cookTime: string;
+  tags: string[];
+  ingredients: Ingredient[];
+  steps: string[];
+  garnish: string;
+}
+
+/**
+ * 언어가 적용된 레시피. `group`/`category` 등은 표시용 문자열로 덮이므로
+ * 필터·정렬에는 원본(`Recipe`)의 값을 쓴다.
+ */
+export interface LocalizedRecipe extends Omit<Recipe, "group" | "category"> {
+  title: string;
+  subtitle: string;
+  /** 표시용 문자열 */
+  group: string;
+  category: string;
+  /** 필터·이모지 조회에 쓰는 원본(한국어) 값 */
+  groupKey: Group;
+  categoryKey: string;
 }
 
 export type SortKey = "menu" | "name" | "time" | "ingredients";

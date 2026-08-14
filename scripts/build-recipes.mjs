@@ -225,6 +225,53 @@ for (const file of files) {
   });
 }
 
+// ---------------------------------------------------------------- 영어판 병합
+//
+// 한국어 md 가 원본이고, i18n/en/*.json 이 그 위에 얹히는 번역층이다.
+// 번역이 하나라도 비면 영어판이 한국어로 새어나오므로 빌드를 실패시킨다.
+
+const EN_DIR = join(ROOT, "i18n", "en");
+const readJson = (name) => JSON.parse(readFileSync(join(EN_DIR, name), "utf8"));
+
+const terms = readJson("terms.json");
+const enIngredients = readJson("ingredients.json");
+const enGarnish = readJson("garnish.json");
+const enSteps = readJson("steps.json");
+
+const hasHangul = (s) => /[가-힣]/.test(s);
+const missing = new Map(); // "종류: 원문" -> 사용 레시피
+
+function tr(dict, key, kind, recipeId) {
+  const hit = dict[key];
+  if (hit) return hit;
+  const slot = `${kind}: ${key}`;
+  if (!missing.has(slot)) missing.set(slot, recipeId);
+  return key;
+}
+
+for (const r of recipes) {
+  r.en = {
+    group: tr(terms.groups, r.group, "group", r.id),
+    category: tr(terms.categories, r.category, "category", r.id),
+    serving: tr(terms.servings, r.serving, "serving", r.id),
+    cookTime: tr(terms.cookTimes, r.cookTime, "cookTime", r.id),
+    tags: r.tags.map((t) => tr(terms.tags, t, "tag", r.id)),
+    ingredients: r.ingredients.map((i) => ({
+      no: i.no,
+      name: tr(enIngredients, i.name, "ingredient", r.id),
+      // 수량은 대부분 "100g" 처럼 언어 중립이라 한글이 든 표기만 바꾼다
+      amount: hasHangul(i.amount) ? tr(terms.amounts, i.amount, "amount", r.id) : i.amount,
+      note: i.note ? tr(terms.notes, i.note, "note", r.id) : "",
+    })),
+    steps: r.steps.map((s) => tr(enSteps, s, "step", r.id)),
+    garnish: r.garnish ? tr(enGarnish, r.garnish, "garnish", r.id) : "",
+  };
+}
+
+if (missing.size) {
+  for (const [slot, recipeId] of missing) fail(`i18n/en (${recipeId})`, `번역 누락 — ${slot}`);
+}
+
 // 메뉴판 순서로 내보낸다 — 앱·PDF 목차가 이 순서를 그대로 쓴다
 recipes.sort((a, b) => a.order - b.order || a.name.localeCompare(b.name, "ko"));
 

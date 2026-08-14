@@ -1,19 +1,18 @@
+import type { Lang, Translate } from "../lib/i18n";
 import type { Theme } from "../lib/storage";
-
-const THEME_ICON: Record<Theme, string> = { system: "🖥️", light: "☀️", dark: "🌙" };
-const THEME_LABEL: Record<Theme, string> = {
-  system: "시스템 설정 따름",
-  light: "라이트 모드",
-  dark: "다크 모드",
-};
 
 interface Props {
   theme: Theme;
   onCycleTheme: () => void;
+  lang: Lang;
+  onToggleLang: () => void;
   homeHref: string;
+  t: Translate;
 }
 
-export function Header({ theme, onCycleTheme, homeHref }: Props) {
+export function Header({ theme, onCycleTheme, lang, onToggleLang, homeHref, t }: Props) {
+  const themeLabel = t(theme === "dark" ? "theme.dark" : "theme.light");
+
   return (
     <header className="header">
       <div className="header__inner">
@@ -22,19 +21,30 @@ export function Header({ theme, onCycleTheme, homeHref }: Props) {
             🍛
           </span>
           <span className="brand__text">
-            <span className="brand__title">에베레스트 레시피북</span>
-            <span className="brand__sub">Everest Restaurant Group</span>
+            <span className="brand__title">{t("brand.title")}</span>
+            <span className="brand__sub">{t("brand.sub")}</span>
           </span>
         </a>
 
         <button
           type="button"
+          className="langswitch"
+          onClick={onToggleLang}
+          aria-label={t("lang.switch")}
+          title={t("lang.switch")}
+        >
+          <span className={lang === "ko" ? "langswitch__on" : "langswitch__off"}>한</span>
+          <span className={lang === "en" ? "langswitch__on" : "langswitch__off"}>EN</span>
+        </button>
+
+        <button
+          type="button"
           className="icon-btn"
           onClick={onCycleTheme}
-          title={`테마: ${THEME_LABEL[theme]} (클릭하여 전환)`}
-          aria-label={`테마 전환. 현재 ${THEME_LABEL[theme]}`}
+          title={t("theme.toggle", { mode: themeLabel })}
+          aria-label={t("theme.toggle", { mode: themeLabel })}
         >
-          <span aria-hidden="true">{THEME_ICON[theme]}</span>
+          <span aria-hidden="true">{theme === "dark" ? "🌙" : "☀️"}</span>
         </button>
       </div>
     </header>

@@ -1,4 +1,5 @@
-import type { Filters, Recipe, SortKey } from "../types";
+import type { Filters, Ingredient, Recipe, SortKey } from "../types";
+import type { Lang } from "./i18n";
 import { isChoseongQuery, normalizeChoseongQuery, toChoseong } from "./hangul";
 
 /** 검색 대상 텍스트를 레시피마다 한 번만 만들어 둔다. */
@@ -14,6 +15,7 @@ const norm = (s: string) => s.toLowerCase().replace(/\s+/g, " ").trim();
 
 export function buildIndex(recipes: Recipe[]): SearchIndexEntry[] {
   return recipes.map((recipe) => {
+    // 한국어와 영어를 한 인덱스에 넣는다. 어느 언어로 보든 양쪽 다 찾힌다.
     const parts = [
       recipe.name,
       recipe.nameEn,
@@ -21,6 +23,10 @@ export function buildIndex(recipes: Recipe[]): SearchIndexEntry[] {
       recipe.group,
       ...recipe.tags,
       ...recipe.ingredients.map((i) => i.name),
+      recipe.en.category,
+      recipe.en.group,
+      ...recipe.en.tags,
+      ...recipe.en.ingredients.map((i) => i.name),
     ];
 
     // 초성은 필드를 섞지 않는다. "모듬 야채 커리" 와 "치킨 커리" 를 이어 붙이면
@@ -37,7 +43,7 @@ export function buildIndex(recipes: Recipe[]): SearchIndexEntry[] {
       recipe,
       haystack: norm(parts.join(" ")),
       choseongFields,
-      ingredientNames: recipe.ingredients.map((i) => norm(i.name)),
+      ingredientNames: [...recipe.ingredients, ...recipe.en.ingredients].map((i) => norm(i.name)),
     };
   });
 }
@@ -75,7 +81,10 @@ function scoreOf(entry: SearchIndexEntry, query: string): number {
   return 5;
 }
 
-export function search(index: SearchIndexEntry[], rawQuery: string): SearchHit[] {
+const ingredientsOf = (recipe: Recipe, lang: Lang): Ingredient[] =>
+  lang === "en" ? recipe.en.ingredients : recipe.ingredients;
+
+export function search(index: SearchIndexEntry[], rawQuery: string, lang: Lang): SearchHit[] {
   const query = norm(rawQuery);
   if (!query) {
     return index.map((e) => ({ recipe: e.recipe, matchedIngredients: [], score: 0 }));
@@ -92,7 +101,9 @@ export function search(index: SearchIndexEntry[], rawQuery: string): SearchHit[]
     if (!matched) continue;
     const matchedIngredients = choseongMode
       ? []
-      : entry.recipe.ingredients.filter((i) => norm(i.name).includes(query)).map((i) => i.name);
+      : ingredientsOf(entry.recipe, lang)
+          .filter((i) => norm(i.name).includes(query))
+          .map((i) => i.name);
     hits.push({
       recipe: entry.recipe,
       matchedIngredients,
@@ -109,9 +120,13 @@ const SORTERS: Record<SortKey, (a: Recipe, b: Recipe) => number> = {
   ingredients: (a, b) => a.ingredients.length - b.ingredients.length || a.order - b.order,
 };
 
-export function applyFilters(index: SearchIndexEntry[], filters: Filters): SearchHit[] {
+export function applyFilters(
+  index: SearchIndexEntry[],
+  filters: Filters,
+  lang: Lang
+): SearchHit[] {
   const byId = new Map(index.map((e) => [e.recipe.id, e]));
-  let hits = search(index, filters.q);
+  let hits = search(index, filters.q, lang);
 
   if (filters.group !== "전체") {
     hits = hits.filter((h) => h.recipe.group === filters.group);
@@ -150,15 +165,15 @@ export function highlight(text: string, rawQuery: string): [string, string, stri
 }
 
 /** 재료 제외 필터의 후보 목록 — 여러 레시피에 쓰이는 재료를 빈도순으로. */
-export function commonIngredients(recipes: Recipe[], limit = 24): string[] {
+export function commonIngredients(recipes: Recipe[], lang: Lang, limit = 24): string[] {
   const counts = new Map<string, number>();
   for (const r of recipes) {
-    const unique = new Set(r.ingredients.map((i) => i.name));
+    const unique = new Set(ingredientsOf(r, lang).map((i) => i.name));
     for (const name of unique) counts.set(name, (counts.get(name) ?? 0) + 1);
   }
   return [...counts.entries()]
     .filter(([, n]) => n >= 3)
-    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], "ko"))
+    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], lang))
     .slice(0, limit)
     .map(([name]) => name);
 }
