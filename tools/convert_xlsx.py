@@ -190,6 +190,17 @@ NON_VEG = ("닭", "치킨", "머턴", "머튼", "양사태", "새우", "해물",
 # 카테고리만으로 채식이 확정되는 경우
 VEG_CATEGORIES = ("베지 카레", "채식 카레", "콩 카레", "채식 볶음면")
 
+# ------------------------------------------------------------- 영문명 보정
+#
+# 원본 xlsx 의 영문 표기를 매장에서 쓰는 표기로 맞춘다.
+# 여기서 고치면 재변환해도 유지된다. (id 슬러그도 이 값에서 만들어진다)
+NAME_EN_OVERRIDE = {
+    "Butter Chicken / Murgh Makhani": "Butter Chicken",
+    "Karahi Chicken": "Kadai Chicken",
+    "Karahi Paneer": "Kadai Paneer",
+    "Ama Tomato Salad": "Ama & Tamatala Salad",
+}
+
 # ------------------------------------------------------------- 슬러그 생성
 MANUAL_SLUG = {
     # 영문명이 없거나 모호한 시트의 고정 슬러그
@@ -295,6 +306,7 @@ def parse_sheet(ws) -> dict:
         category, name_en = m.group(1).strip(), m.group(2).strip()
     else:
         category, name_en = raw_b3, ""
+    name_en = NAME_EN_OVERRIDE.get(name_en, name_en)
 
     raw_b4 = clean(ws["B4"].value)
     cook_time = raw_b4.split(":", 1)[1].strip() if ":" in raw_b4 else raw_b4

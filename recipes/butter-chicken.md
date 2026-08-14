@@ -1,14 +1,14 @@
 ---
-id: butter-chicken-murgh-makhani
+id: butter-chicken
 name: 버터 치킨
-nameEn: Butter Chicken / Murgh Makhani
+nameEn: Butter Chicken
 category: 닭고기 카레
 group: 커리
 serving: 1인분 기준
 cookTime: 약 5~8분
 cookTimeMin: 5
 cookTimeMax: 8
-image: "images/recipes/butter-chicken-murgh-makhani.png"
+image: "images/recipes/butter-chicken.png"
 imageNote: null
 order: 4
 ingredientCount: 7

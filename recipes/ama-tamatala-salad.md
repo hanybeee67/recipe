@@ -1,14 +1,14 @@
 ---
-id: ama-tomato-salad
+id: ama-tamatala-salad
 name: 아마 타마타라 샐러드
-nameEn: Ama Tomato Salad
+nameEn: "Ama & Tamatala Salad"
 category: 샐러드
 group: 수프·샐러드
 serving: 1인분 기준
 cookTime: 약 5~7분
 cookTimeMin: 5
 cookTimeMax: 7
-image: "images/recipes/ama-tomato-salad.png"
+image: "images/recipes/ama-tamatala-salad.png"
 imageNote: null
 order: 5180073
 ingredientCount: 7

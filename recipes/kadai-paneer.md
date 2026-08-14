@@ -1,14 +1,14 @@
 ---
-id: karahi-paneer
+id: kadai-paneer
 name: 커다이 퍼니르
-nameEn: Karahi Paneer
+nameEn: Kadai Paneer
 category: 채식 카레
 group: 커리
 serving: 1인분 기준
 cookTime: 약 5~8분
 cookTimeMin: 5
 cookTimeMax: 8
-image: "images/recipes/karahi-paneer.png"
+image: "images/recipes/kadai-paneer.png"
 imageNote: null
 order: 30019
 ingredientCount: 10

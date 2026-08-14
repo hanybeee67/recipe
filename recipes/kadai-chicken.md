@@ -1,14 +1,14 @@
 ---
-id: karahi-chicken
+id: kadai-chicken
 name: 커다이 치킨
-nameEn: Karahi Chicken
+nameEn: Kadai Chicken
 category: 닭고기 카레
 group: 커리
 serving: 1인분 기준
 cookTime: 약 5~8분
 cookTimeMin: 5
 cookTimeMax: 8
-image: "images/recipes/karahi-chicken.png"
+image: "images/recipes/kadai-chicken.png"
 imageNote: null
 order: 7
 ingredientCount: 10
