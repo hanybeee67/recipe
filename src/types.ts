@@ -9,6 +9,7 @@ export const GROUPS = [
   "세트",
   "디저트",
   "음료",
+  "프렙",
 ] as const;
 
 export type Group = (typeof GROUPS)[number];
@@ -18,6 +19,8 @@ export interface Ingredient {
   name: string;
   amount: string;
   note: string;
+  /** 이 재료가 자체 제조 프렙이면 그 레시피 id */
+  prepId?: string;
 }
 
 export interface Recipe {
@@ -41,11 +44,14 @@ export interface Recipe {
   garnish: string;
   /** 영어 번역층. i18n/en/*.json 에서 빌드 시 병합된다. */
   en: RecipeTranslation;
+  /** 프렙 레시피일 때, 이 프렙을 쓰는 메뉴들 */
+  usedIn?: { id: string; name: string; nameEn: string }[];
 }
 
 export interface RecipeTranslation {
   group: string;
   category: string;
+  imageNote: string | null;
   serving: string;
   cookTime: string;
   tags: string[];

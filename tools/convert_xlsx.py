@@ -69,7 +69,7 @@ GROUP_ORDER = [
     "음료",
 ]
 
-VALID_GROUPS = set(GROUP_ORDER)
+VALID_GROUPS = set(GROUP_ORDER) | {"프렙"}
 
 # 대분류 안에서 세부 카테고리 순서
 CATEGORY_ORDER = [
@@ -461,8 +461,10 @@ def main() -> int:
     image_map = build_image_map(XLSX)
 
     if RECIPES_DIR.exists():
+        # prep-*.md 는 tools/convert_prep.py 가 관리하므로 건드리지 않는다
         for stale in RECIPES_DIR.glob("*.md"):
-            stale.unlink()
+            if not stale.name.startswith("prep-"):
+                stale.unlink()
     RECIPES_DIR.mkdir(parents=True, exist_ok=True)
 
     if IMAGES_DIR.exists():

@@ -1232,3 +1232,50 @@ mark {
 .langswitch:hover .langswitch__off {
   color: var(--text-muted);
 }
+
+/* ============================================================ 프렙 연결 */
+
+.ing-row__prep {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--saffron);
+  text-decoration: underline;
+  text-decoration-color: var(--accent-line);
+  text-underline-offset: 3px;
+  transition: text-decoration-color var(--t-fast);
+}
+.ing-row__prep:hover { text-decoration-color: var(--saffron); }
+
+.ing-row__prep-tag {
+  flex: none;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  padding: 2px 6px;
+  border-radius: var(--r-full);
+  background: var(--accent-wash);
+  border: 1px solid var(--accent-line);
+  text-decoration: none;
+}
+
+.usedin {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.usedin__item {
+  padding: 8px 14px;
+  border-radius: var(--r-md);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  font-size: 14px;
+  font-weight: 620;
+  transition: all var(--t-fast);
+}
+.usedin__item:hover {
+  border-color: var(--saffron);
+  background: var(--accent-wash);
+  color: var(--saffron);
+}

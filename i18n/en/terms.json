@@ -8,7 +8,8 @@
     "수프·샐러드": "Soups & Salads",
     "세트": "Set Menus",
     "디저트": "Desserts",
-    "음료": "Drinks"
+    "음료": "Drinks",
+    "프렙": "Prep"
   },
   "categories": {
     "닭고기 카레": "Chicken Curry",
@@ -34,7 +35,14 @@
     "디저트": "Dessert",
     "디저트/사이드": "Dessert / Side",
     "사이드/디저트": "Side / Dessert",
-    "음료": "Drink"
+    "음료": "Drink",
+    "베이스 소스": "Base Sauce",
+    "기본 페이스트": "Basic Paste",
+    "마리네이드": "Marinade",
+    "처트니": "Chutney",
+    "유제품": "Dairy",
+    "음료 베이스": "Drink Base",
+    "곁들임": "Accompaniment"
   },
   "tags": {
     "닭고기": "Chicken",
@@ -63,7 +71,8 @@
     "샐러드": "Salad",
     "디저트": "Dessert",
     "음료": "Drink",
-    "채식": "Vegetarian"
+    "채식": "Vegetarian",
+    "프렙": "Prep"
   },
   "servings": {
     "1인분 기준": "Per 1 serving"
@@ -179,5 +188,19 @@
     "한마리 - 칼집 내기": "Whole bird — scored",
     "해동": "Thawed",
     "해동 후 물기 제거": "Thawed and drained"
+  },
+  "imageNotes": {
+    "전 커리의 뿌리. 이 소스 하나가 메뉴 30개로 갈라진다.": "The root of every curry — this one sauce branches into 30 dishes.",
+    "마늘과 생강을 1:1로 간다. 거의 모든 커리의 첫 단계에 들어간다.": "Garlic and ginger ground 1:1. It opens almost every curry.",
+    "가열하지 않는다. 탄두리·케밥 전 품목의 밑간.": "No cooking. The base seasoning for every tandoori and kebab item.",
+    "색이 생명. 데친 뒤 바로 식혀야 선명한 녹색이 남는다.": "Colour is everything — chill it straight after blanching to keep the green vivid.",
+    "전날 콩을 불려 두어야 한다.": "The dal has to be soaked the day before.",
+    "양파에 색을 내지 않는 것이 핵심. 완성색이 밝아야 한다.": "The trick is to keep the onion pale — the finished sauce should look light.",
+    "우유 33kg에서 약 5kg이 나온다(수율 15%). 원가표에 응고제가 빠져 있으니 확인이 필요하다.": "33kg of milk yields about 5kg (15%). The costing sheet omits the coagulant — worth checking.",
+    "전날 만든 요거트를 종균으로 쓴다. 원가표에는 종균이 빠져 있다.": "Uses the previous day's yogurt as a starter. The costing sheet omits the starter.",
+    "가열하지 않는다. 사모사·퍼코다·모모의 곁들임.": "No cooking. Served alongside samosa, pakora and momo.",
+    "플레인·망고·딸기 라씨가 모두 이 베이스에서 나간다.": "Plain, mango and strawberry lassi all start from this base.",
+    "탄두리·케밥 접시에 곁들이는 절임 샐러드. 만든 당일에 쓴다.": "A quick-pickled slaw for tandoori and kebab plates. Use the day it is made.",
+    "플레인 난 사진 (원본에 허니 난 사진 없음)": "Photo of plain naan (the source has no honey naan photo)"
   }
 }

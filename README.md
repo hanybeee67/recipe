@@ -1,7 +1,7 @@
 # 에베레스트 레시피북
 
 Everest Restaurant Group 주방용 레시피북 웹앱.
-네팔·인도 요리 **87개 메뉴**의 재료·계량·조리 순서를 폰/태블릿/PC에서 바로 보고 인쇄한다.
+네팔·인도 요리 **87개 메뉴 + 프렙(반제품) 11종**의 재료·계량·조리 순서를 폰/태블릿/PC에서 바로 보고 인쇄한다.
 
 - 기획: [`레시피북_앱_기획서.md`](./레시피북_앱_기획서.md)
 - 데이터 스키마: [`레시피_데이터_템플릿.md`](./레시피_데이터_템플릿.md)
@@ -50,6 +50,12 @@ npm run preview    # 빌드 결과 확인
   - 한글이 이미지가 아닌 선택 가능한 벡터 텍스트로 남는다
   - 87건 전체를 내보내도 레시피가 페이지 경계에서 잘리지 않는다 (89쪽)
 
+### 프렙(반제품)
+- 커리 그레이비 소스·마늘생강 페이스트·파니르 등 **주방에서 직접 만드는 11종**을 별도 분류로 담았다
+- 재료·투입량·수율은 `data/에베레스트_원가표.xlsx` 에서, **조리 과정은 `tools/prep_methods.py`** 에서 온다
+- 메뉴의 재료가 프렙이면 **눌러서 그 프렙 레시피로 이동**한다 (56곳 연결)
+- 프렙 페이지에는 **「이 프렙을 쓰는 메뉴 N개」** 역방향 목록이 있다 — 커리 그레이비 소스는 30개
+
 ### 한국어 / 영어
 - 헤더의 `한 / EN` 스위치로 전환. 선택은 기기에 저장되고 `?lang=en` 으로 링크 공유도 된다
 - 메뉴명·분류·**재료명·조리 단계·가니쉬까지 전부 번역**되어 있다 (약 750개 문자열)
@@ -67,10 +73,13 @@ npm run preview    # 빌드 결과 확인
 ## 데이터 흐름
 
 ```
-data/에베레스트_레시피_v3.xlsx   (원본, 87 시트)
+data/에베레스트_레시피_v3.xlsx   (메뉴 87 시트)
         │  python3 tools/convert_xlsx.py
         ▼
 recipes/*.md  +  public/images/recipes/*.png     ← 사람이 읽고 고치는 단일 진실 공급원
+        ▲
+        │  python3 tools/convert_prep.py
+data/에베레스트_원가표.xlsx  +  tools/prep_methods.py   (프렙 11종: 재료 + 과정)
         │  node scripts/build-recipes.mjs  (스키마 검증)
         ▼
 src/data/recipes.json                            ← 앱이 import
@@ -106,8 +115,16 @@ python3 tools/convert_xlsx.py    # recipes/*.md 와 이미지 재생성
 npm run build                    # 스키마 검증 + 빌드
 ```
 
-`convert_xlsx.py` 는 `recipes/*.md` 를 **전부 지우고 다시 만든다.**
+`convert_xlsx.py` 는 `recipes/*.md` 를 **전부 지우고 다시 만든다.** (단 `prep-*.md` 는 건드리지 않는다)
 md 를 직접 손봤다면 그 수정분은 사라지므로, 원본 xlsx 를 함께 고치거나 변환 후 다시 반영해야 한다.
+
+### 프렙 과정을 고칠 때
+
+```bash
+# tools/prep_methods.py 에서 해당 프렙의 steps 를 수정한 뒤
+python3 tools/convert_prep.py
+npm run build
+```
 
 ---
 
@@ -115,8 +132,10 @@ md 를 직접 손봤다면 그 수정분은 사라지므로, 원본 xlsx 를 함
 
 ```
 data/                    원본 엑셀
-tools/convert_xlsx.py    xlsx -> md + 이미지
-recipes/                 레시피 87개 (md, 스키마는 레시피_데이터_템플릿.md)
+tools/convert_xlsx.py    메뉴 xlsx -> md + 이미지
+tools/convert_prep.py    원가표 xlsx + prep_methods.py -> prep-*.md
+tools/prep_methods.py    프렙 조리 과정 (사람이 쓰는 원본)
+recipes/                 메뉴 87 + 프렙 11 (md, 스키마는 레시피_데이터_템플릿.md)
 public/images/recipes/   요리 사진 84장
 i18n/                    ko/en 번역 사전
 scripts/build-recipes.mjs  md + 번역 -> json + 스키마 검증
@@ -150,5 +169,9 @@ src/
   `적당량` 처럼 숫자가 없는 표기는 배율을 적용하지 않고 원문을 유지한다.
 - 영어 번역은 `i18n/en/*.json` 이 원본이다. 문구를 고치려면 이 파일들을 수정한다
   (레시피 내용 자체를 바꿀 때는 `recipes/*.md` 와 번역을 함께 고쳐야 한다).
+- **프렙 조리 과정은 표준 기법을 재구성한 것이다.** 원가표에는 재료만 있고 과정이 없어서,
+  인도·네팔 레스토랑의 일반적인 방식에 재료 구성을 맞춰 작성했다. 불 세기·시간·순서가
+  매장 실제와 다를 수 있으므로 **주방장 확인이 필요하다.** 확인 후 `tools/prep_methods.py` 를
+  고치고 다시 변환한다.
 - PDF 는 브라우저 인쇄 기능을 사용한다. 인쇄 대화상자에서 **배경 그래픽** 을 켜야
   강조색과 표 줄무늬가 함께 출력된다.

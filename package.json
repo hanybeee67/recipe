@@ -6,7 +6,7 @@
   "description": "Everest Restaurant Group 레시피북 웹앱",
   "scripts": {
     "data": "node scripts/build-recipes.mjs",
-    "convert": "python3 tools/convert_xlsx.py",
+    "convert": "python3 tools/convert_xlsx.py && python3 tools/convert_prep.py",
     "predev": "npm run data",
     "dev": "vite",
     "prebuild": "npm run data",

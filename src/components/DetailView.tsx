@@ -165,7 +165,14 @@ export function DetailView({ recipe, filters, siblings, t }: Props) {
                   <div className="ing-row" key={ingredient.no}>
                     <span className="ing-row__no">{ingredient.no}</span>
                     <span className="ing-row__name">
-                      {ingredient.name}
+                      {ingredient.prepId ? (
+                        <a className="ing-row__prep" href={detailHref(ingredient.prepId, filters)}>
+                          {ingredient.name}
+                          <span className="ing-row__prep-tag">{t("prep.badge")}</span>
+                        </a>
+                      ) : (
+                        ingredient.name
+                      )}
                       {ingredient.note && <span className="ing-row__note">{ingredient.note}</span>}
                     </span>
                     <span className="ing-row__amount">
@@ -232,6 +239,25 @@ export function DetailView({ recipe, filters, siblings, t }: Props) {
                   🌿
                 </span>
                 <p className="garnish__text">{recipe.garnish}</p>
+              </div>
+            </section>
+          )}
+
+          {recipe.usedIn && recipe.usedIn.length > 0 && (
+            <section className="section">
+              <h2 className="section__title" style={{ marginBottom: 6 }}>
+                <span aria-hidden="true">🔗</span>{" "}
+                {t("prep.usedIn", { n: recipe.usedIn.length })}
+              </h2>
+              <p style={{ fontSize: 13, color: "var(--text-faint)", marginBottom: 14 }}>
+                {t("prep.usedInHint")}
+              </p>
+              <div className="usedin">
+                {recipe.usedIn.map((item) => (
+                  <a key={item.id} className="usedin__item" href={detailHref(item.id, filters)}>
+                    {item.name}
+                  </a>
+                ))}
               </div>
             </section>
           )}

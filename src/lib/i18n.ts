@@ -99,5 +99,7 @@ export function localize(recipe: Recipe, lang: Lang): LocalizedRecipe {
     ingredients: recipe.en.ingredients,
     steps: recipe.en.steps,
     garnish: recipe.en.garnish,
+    imageNote: recipe.en.imageNote,
+    usedIn: recipe.usedIn?.map((u) => ({ ...u, name: u.nameEn || u.name })),
   };
 }
