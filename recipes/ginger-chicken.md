@@ -2,7 +2,7 @@
 id: ginger-chicken
 name: 진저 치킨
 nameEn: Ginger Chicken
-category: 닭고기 요리
+category: 치킨 요리
 group: 커리
 serving: 1인분 기준
 cookTime: 약 5~8분

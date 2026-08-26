@@ -1675,3 +1675,111 @@ mark {
   color: var(--paprika);
   font-weight: 650;
 }
+
+/* ============================================================ 메뉴 추가 · 삭제 */
+
+.modal__panel--wide {
+  width: min(760px, 100%);
+}
+
+.btn--danger {
+  background: var(--paprika);
+  border-color: transparent;
+  color: #fff;
+}
+.btn--danger:hover {
+  background: color-mix(in srgb, var(--paprika) 86%, #000);
+  border-color: transparent;
+}
+
+.detail__locknote {
+  font-size: 12px;
+  line-height: 1.55;
+  color: var(--text-faint);
+}
+
+/* 사진 고르기 */
+.photopick {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+}
+.photopick__preview,
+.photopick__empty {
+  flex: none;
+  width: 104px;
+  height: 104px;
+  border-radius: var(--r-md);
+  border: 1px solid var(--border);
+  background: var(--photo-plate);
+  object-fit: contain;
+}
+.photopick__empty {
+  display: grid;
+  place-items: center;
+  font-size: 30px;
+  opacity: 0.4;
+}
+.photopick__side {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 9px;
+}
+.photopick__input {
+  max-width: 100%;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+.photopick__hint {
+  font-size: 12px;
+  line-height: 1.55;
+  color: var(--text-faint);
+}
+
+/* 하단 막대 — 내역 요약과 삭제 복구 */
+.editbar__breakdown {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 8px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+.editbar__breakdown > * {
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--bg-sunken);
+}
+.editbar__link {
+  color: var(--saffron);
+  font: inherit;
+  font-weight: 650;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.editbar__restore {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 0 var(--pad-page) 14px;
+}
+.editbar__restore-label {
+  font-size: 12.5px;
+  font-weight: 650;
+  color: var(--text-muted);
+}
+
+/* 좁은 화면에서는 미리보기 아래로 조작부를 내린다 — 안내 문구가 잘리지 않도록 */
+@media (max-width: 480px) {
+  .photopick {
+    flex-direction: column;
+  }
+  .photopick__side {
+    width: 100%;
+  }
+}

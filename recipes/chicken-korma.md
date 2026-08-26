@@ -2,7 +2,7 @@
 id: chicken-korma
 name: 치킨 코르마
 nameEn: Chicken Korma
-category: 닭고기 카레
+category: 치킨 커리
 group: 커리
 serving: 1인분 기준
 cookTime: 약 3~5분

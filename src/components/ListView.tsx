@@ -24,6 +24,8 @@ interface Props {
   onClearSelection: () => void;
   onSelectAll: (ids: string[]) => void;
   lang: Lang;
+  canEdit: boolean;
+  onAddRecipe: () => void;
   t: Translate;
 }
 
@@ -31,6 +33,8 @@ export function ListView({
   recipes,
   index,
   filters,
+  canEdit,
+  onAddRecipe,
   hits,
   selected,
   onToggleSelect,
@@ -168,6 +172,12 @@ export function ListView({
             {t("list.count", { n: hits.length })}
             {active && t("filter.applied")}
           </p>
+
+          {canEdit && (
+            <button type="button" className="btn btn--sm btn--primary" onClick={onAddRecipe}>
+              ＋ {t("add.button")}
+            </button>
+          )}
 
           <button
             type="button"

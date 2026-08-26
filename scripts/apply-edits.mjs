@@ -17,6 +17,7 @@ import { fileURLToPath } from "node:url";
 
 const ROOT = fileURLToPath(new URL("..", import.meta.url));
 const RECIPES_DIR = join(ROOT, "recipes");
+const IMAGES_DIR = join(ROOT, "public", "images", "recipes");
 const EN_DIR = join(ROOT, "i18n", "en");
 
 const args = process.argv.slice(2);
@@ -45,7 +46,7 @@ const enGarnish = readJson("garnish.json");
 const enSteps = readJson("steps.json");
 
 const missing = []; // { kind, ko }
-const touched = { md: [], i18n: new Set() };
+const touched = { md: [], added: [], removed: [], i18n: new Set() };
 const log = [];
 
 // ------------------------------------------------------------------ md 파싱
@@ -169,15 +170,19 @@ const coveredByPattern = (s) => BY_PATTERN.some((re) => re.test(s));
 
 // ------------------------------------------------------------------ 반영
 
-const ids = Object.keys(payload.edits);
-if (ids.length === 0) {
-  console.log("반영할 수정 내용이 없습니다.");
+const ids = Object.keys(payload.edits ?? {});
+const addedCount = (payload.added ?? []).length;
+const deletedCount = (payload.deleted ?? []).length;
+if (ids.length + addedCount + deletedCount === 0) {
+  console.log("반영할 변경 내용이 없습니다.");
   process.exit(0);
 }
 
 console.log(`수정 파일: ${file}`);
 console.log(`  작성자 ${payload.by} · 내보낸 시각 ${payload.exportedAt}`);
-console.log(`  대상 레시피 ${ids.length}건\n`);
+console.log(
+  `  수정 ${ids.length}건 · 추가 ${addedCount}건 · 삭제 ${deletedCount}건\n`
+);
 
 for (const id of ids.sort()) {
   const patch = payload.edits[id];
@@ -292,6 +297,106 @@ for (const id of ids.sort()) {
   log.push(`  ${id}\n${changes.map((c) => `    · ${c}`).join("\n")}`);
 }
 
+// ------------------------------------------------------- 새로 만든 메뉴
+
+/** 영어가 아직 한국어 그대로면 번역이 안 된 것이다 — 사전에 밀어 넣지 않는다. */
+function putTranslation(dict, dictName, kind, ko, en) {
+  if (!ko) return;
+  if (dict[ko] !== undefined) return;
+  if (!en || (en === ko && hasHangul(ko))) {
+    missing.push({ kind, ko });
+    return;
+  }
+  dict[ko] = en;
+  touched.i18n.add(dictName);
+}
+
+for (const item of payload.added ?? []) {
+  const path = join(RECIPES_DIR, `${item.id}.md`);
+  if (existsSync(path)) {
+    console.error(`✗ ${item.id}.md 가 이미 있습니다 — 건너뜁니다`);
+    continue;
+  }
+
+  const [min, max] = (() => {
+    const r = /(\d+)\s*~\s*(\d+)/.exec(item.ko.cookTime) ?? /(\d+)/.exec(item.ko.cookTime);
+    return r ? [Number(r[1]), Number(r[2] ?? r[1])] : [0, 0];
+  })();
+
+  // 사진이 있으면 data URI 를 풀어 파일로 떨군다.
+  let image = null;
+  if (item.image) {
+    const m = /^data:image\/(png|jpeg|jpg|webp);base64,(.+)$/i.exec(item.image);
+    if (m) {
+      const ext = m[1].toLowerCase() === "png" ? "png" : m[1].toLowerCase() === "webp" ? "webp" : "jpg";
+      const file = `${item.id}.${ext}`;
+      if (!dryRun) writeFileSync(join(IMAGES_DIR, file), Buffer.from(m[2], "base64"));
+      image = `images/recipes/${file}`;
+    } else {
+      console.error(`  ⚠ ${item.id}: 사진 형식을 알아보지 못해 건너뜁니다`);
+    }
+  }
+
+  const fmLines = [
+    `id: ${item.id}`,
+    `name: ${fmQuote(item.ko.name)}`,
+    `nameEn: ${fmQuote(item.en.name)}`,
+    `category: ${fmQuote(item.category)}`,
+    `group: ${item.group}`,
+    `serving: 1인분 기준`,
+    `cookTime: ${fmQuote(item.ko.cookTime)}`,
+    `cookTimeMin: ${min}`,
+    `cookTimeMax: ${max}`,
+    `image: ${image ? JSON.stringify(image) : "null"}`,
+    `imageNote: null`,
+    `order: ${item.order}`,
+    `ingredientCount: ${item.ko.ingredients.length}`,
+    `stepCount: ${item.ko.steps.length}`,
+    `tags: []`,
+  ];
+
+  if (!dryRun) {
+    writeFileSync(path, renderMd(fmLines, item.ko.ingredients, item.ko.steps, item.ko.garnish), "utf8");
+  }
+
+  // 번역 사전 — 아직 한국어인 값은 넣지 않고 누락으로 남긴다.
+  putTranslation(terms.categories, "terms.json", "세부 분류", item.category, item.categoryEn);
+  if (!coveredByPattern(item.ko.cookTime)) {
+    putTranslation(terms.cookTimes, "terms.json", "조리시간", item.ko.cookTime, item.en.cookTime);
+  }
+  item.ko.ingredients.forEach((row, i) => {
+    const enRow = item.en.ingredients?.[i] ?? {};
+    putTranslation(enIngredients, "ingredients.json", "재료명", row.name, enRow.name);
+    if (row.note) putTranslation(terms.notes, "terms.json", "비고", row.note, enRow.note);
+    if (hasHangul(row.amount)) putTranslation(terms.amounts, "terms.json", "수량", row.amount, enRow.amount);
+  });
+  item.ko.steps.forEach((step, i) =>
+    putTranslation(enSteps, "steps.json", "조리 단계", step, item.en.steps?.[i])
+  );
+  if (item.ko.garnish) putTranslation(enGarnish, "garnish.json", "가니쉬", item.ko.garnish, item.en.garnish);
+
+  touched.added.push(item.id);
+  log.push(
+    `  ${item.id}  [새 메뉴]\n` +
+      `    · ${item.group} / ${item.category} — ${item.ko.name} (${item.en.name})\n` +
+      `    · 재료 ${item.ko.ingredients.length}개 · 단계 ${item.ko.steps.length}개` +
+      (image ? ` · 사진 ${image}` : " · 사진 없음")
+  );
+}
+
+// ------------------------------------------------------- 삭제한 메뉴
+
+for (const id of payload.deleted ?? []) {
+  const path = join(RECIPES_DIR, `${id}.md`);
+  if (!existsSync(path)) {
+    console.error(`✗ ${id}.md 가 없습니다 — 이미 지워진 듯합니다`);
+    continue;
+  }
+  if (!dryRun) unlinkSync(path);
+  touched.removed.push(id);
+  log.push(`  ${id}  [삭제]`);
+}
+
 console.log(log.join("\n"));
 
 // ------------------------------------------------------------------ 저장
@@ -316,10 +421,12 @@ if (!dryRun) {
   if (touched.i18n.has("steps.json")) write("steps.json", enSteps);
 }
 
-console.log(
-  `\n${dryRun ? "[미리보기] " : "✓ "}레시피 ${touched.md.length}건` +
-    (touched.i18n.size ? ` · 번역 사전 ${[...touched.i18n].join(", ")}` : "")
-);
+const parts = [];
+if (touched.md.length) parts.push(`수정 ${touched.md.length}건`);
+if (touched.added.length) parts.push(`추가 ${touched.added.length}건`);
+if (touched.removed.length) parts.push(`삭제 ${touched.removed.length}건`);
+if (touched.i18n.size) parts.push(`번역 사전 ${[...touched.i18n].join(", ")}`);
+console.log(`\n${dryRun ? "[미리보기] " : "✓ "}${parts.join(" · ") || "변경 없음"}`);
 
 // ------------------------------------------------------------------ 번역 누락
 

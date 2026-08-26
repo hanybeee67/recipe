@@ -5,12 +5,13 @@ import { EditBar } from "./components/EditBar";
 import { Header } from "./components/Header";
 import { ListView } from "./components/ListView";
 import { LoginDialog } from "./components/LoginDialog";
+import { NewRecipeDialog } from "./components/NewRecipeDialog";
 import { PrintView } from "./components/PrintView";
 import { assetUrl } from "./lib/assets";
 import { useAuth } from "./lib/auth";
-import { SEED, applyPatch, mergeStores, useEdits } from "./lib/edits";
+import { SEED, composeRecipes, mergeBundles, useEdits } from "./lib/edits";
 import { localize, useLang } from "./lib/i18n";
-import { listHref, useRoute } from "./lib/router";
+import { listHref, navigate, useRoute } from "./lib/router";
 import { applyFilters, buildIndex } from "./lib/search";
 import { useTheme } from "./lib/storage";
 import { EMPTY_FILTERS, type Recipe } from "./types";
@@ -22,26 +23,30 @@ export default function App() {
   const { theme, cycle } = useTheme();
   const { lang, setLang, t } = useLang();
   const { manager, signIn, signOut, canEdit } = useAuth();
-  const { edits, save: saveEdit, revert, revertAll, count: editCount } = useEdits();
+  const {
+    bundle,
+    save: saveEdit,
+    revert,
+    revertAll,
+    addRecipe,
+    removeRecipe,
+    restoreRecipe,
+    count: editCount,
+  } = useEdits();
   const [selected, setSelected] = useState<string[]>([]);
   const [loginOpen, setLoginOpen] = useState(false);
+  const [addOpen, setAddOpen] = useState(false);
 
   /**
-   * 발행분(파일에 박혀 온 수정분)까지 얹은 것이 "이 파일 기준의 원본"이다.
+   * 발행분(파일에 박혀 온 변경분)까지 얹은 것이 "이 파일 기준의 원본"이다.
    * 받은 사람에게는 이게 그냥 레시피이므로 수정 배지도 붙지 않는다.
    */
-  const PUBLISHED = useMemo(
-    () =>
-      Object.keys(SEED).length === 0
-        ? BASE_RECIPES
-        : BASE_RECIPES.map((r) => applyPatch(r, SEED[r.id])),
-    []
-  );
+  const PUBLISHED = useMemo(() => composeRecipes(BASE_RECIPES, SEED), []);
 
   // 그 위에 이 기기에서 방금 고친 것을 다시 얹은 값이 화면·검색·PDF가 보는 값이다.
   const RECIPES = useMemo(
-    () => (editCount === 0 ? PUBLISHED : PUBLISHED.map((r) => applyPatch(r, edits[r.id]))),
-    [PUBLISHED, edits, editCount]
+    () => (editCount === 0 ? PUBLISHED : composeRecipes(PUBLISHED, bundle)),
+    [PUBLISHED, bundle, editCount]
   );
 
   const index = useMemo(() => buildIndex(RECIPES), [RECIPES]);
@@ -75,6 +80,22 @@ export default function App() {
   const handleRevertEdit = useCallback(() => {
     if (detailId) revert(detailId);
   }, [detailId, revert]);
+
+  const handleDelete = useCallback(() => {
+    if (!detailId) return;
+    removeRecipe(detailId);
+    navigate(listHref(route.filters));
+  }, [detailId, removeRecipe, route.filters]);
+
+  /** 삭제 목록에 올라간 메뉴의 이름 — 복구 패널에 쓴다. */
+  const deletedRecipes = useMemo(
+    () =>
+      bundle.deleted
+        .map((id) => PUBLISHED.find((r) => r.id === id))
+        .filter((r): r is Recipe => Boolean(r))
+        .map((r) => ({ id: r.id, name: lang === "ko" ? r.name : r.nameEn })),
+    [bundle.deleted, PUBLISHED, lang]
+  );
 
   // 첫 방문 시 대표 이미지를 미리 받아 두면 스크롤이 매끄럽다.
   useEffect(() => {
@@ -130,9 +151,11 @@ export default function App() {
             base={detailId ? baseById.get(detailId) : undefined}
             lang={lang}
             canEdit={canEdit}
-            edited={Boolean(detailId && edits[detailId])}
+            edited={Boolean(detailId && bundle.patches[detailId])}
+            isNew={Boolean(detailId && bundle.added.some((r) => r.id === detailId))}
             onSaveEdit={handleSaveEdit}
             onRevertEdit={handleRevertEdit}
+            onDelete={handleDelete}
             t={t}
           />
         ) : (
@@ -146,6 +169,8 @@ export default function App() {
             onClearSelection={clearSelection}
             onSelectAll={selectAll}
             lang={lang}
+            canEdit={canEdit}
+            onAddRecipe={() => setAddOpen(true)}
             t={t}
           />
         )}
@@ -173,7 +198,10 @@ export default function App() {
       {editCount > 0 && (
         <EditBar
           manager={manager}
-          published={mergeStores(SEED, edits)}
+          published={mergeBundles(SEED, bundle)}
+          bundle={bundle}
+          deletedRecipes={deletedRecipes}
+          onRestore={restoreRecipe}
           count={editCount}
           onRevertAll={revertAll}
           t={t}
@@ -181,6 +209,14 @@ export default function App() {
       )}
 
       <LoginDialog open={loginOpen} onClose={() => setLoginOpen(false)} onSubmit={signIn} t={t} />
+
+      <NewRecipeDialog
+        open={addOpen && canEdit}
+        onClose={() => setAddOpen(false)}
+        onCreate={addRecipe}
+        recipes={RECIPES}
+        t={t}
+      />
     </>
   );
 }

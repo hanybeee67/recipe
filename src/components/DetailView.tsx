@@ -19,8 +19,11 @@ interface Props {
   lang: Lang;
   canEdit: boolean;
   edited: boolean;
+  /** 이 기기에서 새로 만든 메뉴 — 삭제하면 되돌릴 수 없다 */
+  isNew: boolean;
   onSaveEdit: (draft: FieldPatch) => void;
   onRevertEdit: () => void;
+  onDelete: () => void;
   t: Translate;
 }
 
@@ -33,23 +36,30 @@ export function DetailView({
   lang,
   canEdit,
   edited,
+  isNew,
   onSaveEdit,
   onRevertEdit,
+  onDelete,
   t,
 }: Props) {
   const [multiplier, setMultiplier] = useState<Multiplier>(1);
   const [editing, setEditing] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
   const progress = useStepProgress(recipe?.id ?? "", recipe?.steps.length ?? 0);
 
   useEffect(() => {
     setMultiplier(1);
     setEditing(false);
+    setConfirmDelete(false);
     window.scrollTo({ top: 0, behavior: "auto" });
   }, [recipe?.id]);
 
   // 로그아웃하면 편집 폼도 닫는다.
   useEffect(() => {
-    if (!canEdit) setEditing(false);
+    if (!canEdit) {
+      setEditing(false);
+      setConfirmDelete(false);
+    }
   }, [canEdit]);
 
   const position = recipe ? siblings.findIndex((r) => r.id === recipe.id) : -1;
@@ -86,6 +96,8 @@ export function DetailView({
   }
 
   const src = assetUrl(recipe.image);
+  // 다른 메뉴의 재료로 걸려 있는 프렙은 지우면 그 링크들이 깨진다.
+  const usedElsewhere = (recipe.usedIn?.length ?? 0) > 0;
   const percent = progress.total ? Math.round((progress.completed / progress.total) * 100) : 0;
   const isVeg = recipe.tags.includes("채식") || recipe.tags.includes("Vegetarian");
   const isSpicy = recipe.tags.includes("매운맛") || recipe.tags.includes("Spicy");
@@ -139,6 +151,18 @@ export function DetailView({
               <button type="button" className="btn" onClick={() => setEditing(true)}>
                 ✏️ {t("edit.button")}
               </button>
+            )}
+            {canEdit && !editing && !usedElsewhere && (
+              <button
+                type="button"
+                className="btn btn--ghost-danger"
+                onClick={() => setConfirmDelete(true)}
+              >
+                🗑 {t("del.button")}
+              </button>
+            )}
+            {canEdit && usedElsewhere && (
+              <p className="detail__locknote">{t("del.blocked", { n: recipe.usedIn?.length ?? 0 })}</p>
             )}
             {progress.completed > 0 && (
               <button type="button" className="btn" onClick={progress.reset}>
@@ -333,6 +357,31 @@ export function DetailView({
           )}
         </div>
       </div>
+
+      {confirmDelete && (
+        <div className="modal no-print" role="presentation" onMouseDown={() => setConfirmDelete(false)}>
+          <div
+            className="modal__panel"
+            role="dialog"
+            aria-modal="true"
+            onMouseDown={(e) => e.stopPropagation()}
+          >
+            <h2 className="modal__title">
+              <span aria-hidden="true">🗑</span> {t("del.confirmTitle")}
+            </h2>
+            <p className="modal__desc">{t("del.confirmDesc", { name: recipe.title })}</p>
+            <p className="modal__warn">{t(isNew ? "del.warnNew" : "del.warnExisting")}</p>
+            <div className="modal__actions">
+              <button type="button" className="btn" onClick={() => setConfirmDelete(false)}>
+                {t("edit.cancel")}
+              </button>
+              <button type="button" className="btn btn--danger" onClick={onDelete}>
+                {t("del.confirm")}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ---------------------------------------------------- 이전 / 다음 */}
       {(previous || next) && (

@@ -2,7 +2,7 @@
 id: chicken-makhani
 name: 치킨머커니
 nameEn: Chicken Makhani
-category: 닭고기 카레
+category: 치킨 커리
 group: 커리
 serving: 1인분 기준
 cookTime: 약 5~8분
