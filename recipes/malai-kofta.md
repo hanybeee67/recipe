@@ -2,7 +2,7 @@
 id: malai-kofta
 name: 머라이 코프타
 nameEn: Malai Kofta
-category: 채식 카레
+category: 야채 커리
 group: 커리
 serving: 1인분 기준
 cookTime: 약 3~5분

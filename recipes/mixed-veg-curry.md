@@ -2,7 +2,7 @@
 id: mixed-veg-curry
 name: 모듬 야채 커리
 nameEn: Mixed Veg Curry
-category: 베지 카레
+category: 야채 커리
 group: 커리
 serving: 1인분 기준
 cookTime: 약 3~5분

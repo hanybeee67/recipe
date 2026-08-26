@@ -2,7 +2,7 @@
 id: dal-makhani
 name: 달 머커니
 nameEn: Dal Makhani
-category: 콩 카레
+category: 야채 커리
 group: 커리
 serving: 1인분 기준
 cookTime: 약 3~5분

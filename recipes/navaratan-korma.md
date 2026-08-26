@@ -2,7 +2,7 @@
 id: navaratan-korma
 name: 야채 나바라탄 코르마
 nameEn: Navaratan Korma
-category: 채식 카레
+category: 야채 커리
 group: 커리
 serving: 1인분 기준
 cookTime: 약 3~5분

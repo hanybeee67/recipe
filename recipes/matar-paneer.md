@@ -2,7 +2,7 @@
 id: matar-paneer
 name: 마타 퍼니르
 nameEn: Matar Paneer
-category: 채식 카레
+category: 야채 커리
 group: 커리
 serving: 1인분 기준
 cookTime: 약 5~8분

@@ -2,7 +2,7 @@
 id: kadai-paneer
 name: 커다이 퍼니르
 nameEn: Kadai Paneer
-category: 채식 카레
+category: 야채 커리
 group: 커리
 serving: 1인분 기준
 cookTime: 약 5~8분
