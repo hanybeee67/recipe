@@ -86,6 +86,7 @@
   "lang.switch": "한국어로 보기",
   "footer.recipes": "{n} recipes",
   "footer.source": "Source: Everest recipe workbook v3",
+  "footer.download": "Download the whole app (one offline file)",
   "skip": "Skip to content",
   "prep.badge": "PREP",
   "prep.usedIn": "Used in {n} dishes",

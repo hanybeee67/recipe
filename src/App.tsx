@@ -104,6 +104,18 @@ export default function App() {
           <span>© {new Date().getFullYear()} Everest Restaurant Group</span>
           <span>{t("footer.recipes", { n: RECIPES.length })}</span>
           <span>{t("footer.source")}</span>
+          {/* 단일 파일 안에서는 내려받을 대상이 자기 자신이라 링크를 감춘다. */}
+          {!__STANDALONE__ && (
+            <a
+              className="footer__download"
+              href={assetUrl("everest-recipe-book.html") ?? "#"}
+              // 저장될 이름. 한글 파일명은 브라우저·OS 조합에 따라 통째로
+              // 무시되고 "download" 로 떨어지는 경우가 있어 ASCII 로 둔다.
+              download="everest-recipe-book.html"
+            >
+              ⬇ {t("footer.download")}
+            </a>
+          )}
         </footer>
       </main>
     </>

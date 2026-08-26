@@ -86,6 +86,7 @@
   "lang.switch": "View in English",
   "footer.recipes": "레시피 {n}건",
   "footer.source": "데이터 출처: 에베레스트_레시피_v3.xlsx",
+  "footer.download": "앱 통째로 내려받기 (오프라인용 파일 1개)",
   "skip": "본문으로 건너뛰기",
   "prep.badge": "프렙",
   "prep.usedIn": "이 프렙을 쓰는 메뉴 {n}개",

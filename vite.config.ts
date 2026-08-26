@@ -5,6 +5,8 @@ import react from "@vitejs/plugin-react";
 export default defineConfig({
   base: "./",
   plugins: [react()],
+  // 단일 파일 빌드에서만 true 로 바뀐다 (scripts/build-standalone.mjs)
+  define: { __STANDALONE__: "false" },
   build: {
     outDir: "dist",
     assetsInlineLimit: 0,

@@ -62,6 +62,22 @@ npm run preview    # 빌드 결과 확인
 - 검색은 언어와 무관하게 양쪽을 다 찾는다 — 영어 화면에서 `감자`, 한국어 화면에서 `potato` 모두 동작
 - 번역이 하나라도 비면 빌드가 실패하므로 영어 화면에 한국어가 새어나오지 않는다
 
+### 단일 파일로 내려받기
+
+앱 전체(코드·번역·사진 84장)를 **`.html` 파일 하나**로 묶어 배포한다.
+
+- 사이트 푸터의 **「앱 통째로 내려받기」** 로 받는다 (`everest-recipe-book.html`, 약 2.3 MB)
+- 받은 파일은 **더블클릭만 하면 열린다.** 설치·서버·인터넷 연결이 전부 필요 없다
+- 카톡·메일·USB 로 그대로 전달할 수 있고, 받은 사람도 똑같이 더블클릭해서 쓴다
+- 검색·필터·배율기·조리 단계 체크·한/영 전환·PDF 내보내기까지 사이트와 기능이 같다
+- 외부 네트워크 요청이 **0건**이라 매장 와이파이가 끊겨도 주방에서 계속 볼 수 있다
+
+```bash
+npm run standalone      # -> public/everest-recipe-book.html
+```
+
+`npm run build` 가 이 단계를 먼저 돌리므로, 배포본의 단일 파일은 항상 사이트와 같은 내용이다.
+
 ### 그 외
 - 라이트 / 다크 테마. **라이트가 기본**이며, 다크는 사용자가 직접 켰을 때만 적용된다
   (시스템 다크를 자동으로 따라가면 카카오톡 인앱 브라우저 등에서 검은 화면으로 열린다)
@@ -138,7 +154,8 @@ tools/prep_methods.py    프렙 조리 과정 (사람이 쓰는 원본)
 recipes/                 메뉴 87 + 프렙 11 (md, 스키마는 레시피_데이터_템플릿.md)
 public/images/recipes/   요리 사진 84장
 i18n/                    ko/en 번역 사전
-scripts/build-recipes.mjs  md + 번역 -> json + 스키마 검증
+scripts/build-recipes.mjs     md + 번역 -> json + 스키마 검증
+scripts/build-standalone.mjs  전부 인라인한 단일 html (public/everest-recipe-book.html)
 src/
   types.ts               Recipe / Filters 타입, 대분류 9종
   lib/
@@ -175,3 +192,7 @@ src/
   고치고 다시 변환한다.
 - PDF 는 브라우저 인쇄 기능을 사용한다. 인쇄 대화상자에서 **배경 그래픽** 을 켜야
   강조색과 표 줄무늬가 함께 출력된다.
+- 단일 파일은 `public/` 에 들어 있고 빌드 때마다 다시 생성된다. 직접 편집하지 않는다
+  (내용을 고치려면 `recipes/*.md` 를 고치고 `npm run standalone` 을 다시 돌린다).
+- 단일 파일은 `file://` 에서 열리므로 ES 모듈 대신 iife 로 번들한다. 저장되는 파일명은
+  한글 파일명을 통째로 무시하는 브라우저가 있어 ASCII(`everest-recipe-book.html`)로 둔다.

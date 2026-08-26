@@ -9,9 +9,11 @@
     "convert": "python3 tools/convert_xlsx.py && python3 tools/convert_prep.py",
     "predev": "npm run data",
     "dev": "vite",
-    "prebuild": "npm run data",
+    "prebuild": "npm run standalone",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
+    "prestandalone": "npm run data",
+    "standalone": "node scripts/build-standalone.mjs",
     "typecheck": "npm run data && tsc --noEmit"
   },
   "dependencies": {

@@ -1,6 +1,8 @@
 /** public/ 하위 자산의 실제 URL. base 가 상대 경로('./')여도 동작한다. */
 export function assetUrl(path: string | null): string | null {
   if (!path) return null;
+  // 단일 파일 빌드에서는 사진이 data: URI 로 박혀 있다 — base 를 붙이면 안 된다.
+  if (path.startsWith("data:")) return path;
   const base = import.meta.env.BASE_URL || "/";
   return base.endsWith("/") ? base + path : `${base}/${path}`;
 }
