@@ -1655,7 +1655,23 @@ mark {
   display: flex;
   gap: 8px;
 }
-@media (max-width: 480px) {
-  .editbar__actions { margin-left: 0; width: 100%; }
-  .editbar__actions .btn { flex: 1; }
+/* 좁은 화면에서는 주 버튼(수정본 저장)을 한 줄 전체로 올리고 보조 둘을 아래에 둔다 */
+@media (max-width: 620px) {
+  .editbar__actions {
+    margin-left: 0;
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .editbar__actions .btn--primary {
+    grid-column: 1 / -1;
+    order: -1;
+    min-height: 44px;
+  }
+}
+
+.editbar__where--bad {
+  color: var(--paprika);
+  font-weight: 650;
 }

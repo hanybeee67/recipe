@@ -3,10 +3,10 @@
   "iterations": 200000,
   "users": [
     {
-      "id": "manager",
-      "name": "매니지먼트",
-      "salt": "3b98c63cf35ee3f6c56fd36f1754e69c",
-      "hash": "4ab8e1197e457776ad5823bc2cb3df0dadb099a3fc83149760aa4cb28d439a30"
+      "id": "everest",
+      "name": "에베레스트",
+      "salt": "fd9f0da88a4b62fbfa6892e4373fcb82",
+      "hash": "4f092e208ed157970338ec09d0a7bb1806031422432905688c9379414b7f4d4f"
     }
   ]
 }

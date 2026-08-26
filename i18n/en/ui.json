@@ -108,7 +108,7 @@
   "edit.title": "Edit recipe",
   "edit.langKo": "Editing the Korean text",
   "edit.langEn": "Editing the English text",
-  "edit.hint": "Edits are saved on this device and show up immediately. To make them visible to everyone, use “Export changes” in the bar below and pass the file on.",
+  "edit.hint": "Edits are saved on this device and show up immediately. To send them to someone, press “💾 Save edited app” in the bar below — it builds an app file with your changes in it.",
   "edit.name": "Dish name",
   "edit.cookTime": "Cook time",
   "edit.ingredients": "{n} ingredients",
@@ -128,8 +128,11 @@
   "edit.flag": "This recipe differs from the original",
   "edit.locked": "Photo, category, tags and menu order cannot be changed here — they come from the source workbook and the ordering rules.",
   "editbar.pending": "{n} recipes edited",
-  "editbar.local": "saved on this device only",
-  "editbar.saved": "{file} downloaded — pass this file on",
+  "editbar.local": "saved on this device — “Save edited app” builds an app file with your changes in it",
+  "editbar.saved": "{file} saved — send this file on and you are done",
   "editbar.export": "Export changes",
-  "editbar.revertAll": "Revert all"
+  "editbar.revertAll": "Revert all",
+  "editbar.saveApp": "Save edited app",
+  "editbar.saving": "Building…",
+  "editbar.exportJson": "Change log (JSON)"
 }

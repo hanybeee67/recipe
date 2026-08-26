@@ -108,7 +108,7 @@
   "edit.title": "레시피 수정",
   "edit.langKo": "한국어 내용을 고칩니다",
   "edit.langEn": "영어 내용을 고칩니다",
-  "edit.hint": "고친 내용은 이 기기에 저장되고 화면에 바로 반영됩니다. 다른 사람에게도 보이게 하려면 아래 막대의 「변경사항 내보내기」로 파일을 받아 전달해 주세요.",
+  "edit.hint": "고친 내용은 이 기기에 저장되고 화면에 바로 반영됩니다. 다른 사람에게 보내려면 아래 막대의 「💾 수정본 저장」을 누르세요 — 고친 내용이 담긴 앱 파일이 만들어집니다.",
   "edit.name": "메뉴명",
   "edit.cookTime": "조리 시간",
   "edit.ingredients": "재료 {n}개",
@@ -128,8 +128,11 @@
   "edit.flag": "원본에서 수정된 레시피입니다",
   "edit.locked": "사진 · 분류 · 태그 · 나열 순서는 여기서 바꿀 수 없습니다. 원본 엑셀과 순서 규칙에서 정해지기 때문입니다.",
   "editbar.pending": "수정한 레시피 {n}건",
-  "editbar.local": "이 기기에만 저장됨",
-  "editbar.saved": "{file} 내려받음 — 이 파일을 전달하세요",
+  "editbar.local": "이 기기에만 저장됨 — 「수정본 저장」을 누르면 고친 내용이 담긴 앱 파일이 만들어집니다",
+  "editbar.saved": "{file} 저장 완료 — 이 파일을 카톡·메일로 전달하면 끝입니다",
   "editbar.export": "변경사항 내보내기",
-  "editbar.revertAll": "전부 되돌리기"
+  "editbar.revertAll": "전부 되돌리기",
+  "editbar.saveApp": "수정본 저장",
+  "editbar.saving": "만드는 중…",
+  "editbar.exportJson": "변경 내역(JSON)"
 }

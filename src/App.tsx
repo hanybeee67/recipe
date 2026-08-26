@@ -8,7 +8,7 @@ import { LoginDialog } from "./components/LoginDialog";
 import { PrintView } from "./components/PrintView";
 import { assetUrl } from "./lib/assets";
 import { useAuth } from "./lib/auth";
-import { applyPatch, useEdits } from "./lib/edits";
+import { SEED, applyPatch, mergeStores, useEdits } from "./lib/edits";
 import { localize, useLang } from "./lib/i18n";
 import { listHref, useRoute } from "./lib/router";
 import { applyFilters, buildIndex } from "./lib/search";
@@ -26,15 +26,27 @@ export default function App() {
   const [selected, setSelected] = useState<string[]>([]);
   const [loginOpen, setLoginOpen] = useState(false);
 
-  // 매니저 수정분을 원본 위에 얹은 것이 화면·검색·PDF가 모두 보는 값이다.
+  /**
+   * 발행분(파일에 박혀 온 수정분)까지 얹은 것이 "이 파일 기준의 원본"이다.
+   * 받은 사람에게는 이게 그냥 레시피이므로 수정 배지도 붙지 않는다.
+   */
+  const PUBLISHED = useMemo(
+    () =>
+      Object.keys(SEED).length === 0
+        ? BASE_RECIPES
+        : BASE_RECIPES.map((r) => applyPatch(r, SEED[r.id])),
+    []
+  );
+
+  // 그 위에 이 기기에서 방금 고친 것을 다시 얹은 값이 화면·검색·PDF가 보는 값이다.
   const RECIPES = useMemo(
-    () => (editCount === 0 ? BASE_RECIPES : BASE_RECIPES.map((r) => applyPatch(r, edits[r.id]))),
-    [edits, editCount]
+    () => (editCount === 0 ? PUBLISHED : PUBLISHED.map((r) => applyPatch(r, edits[r.id]))),
+    [PUBLISHED, edits, editCount]
   );
 
   const index = useMemo(() => buildIndex(RECIPES), [RECIPES]);
   const byId = useMemo(() => new Map(RECIPES.map((r) => [r.id, r])), [RECIPES]);
-  const baseById = useMemo(() => new Map(BASE_RECIPES.map((r) => [r.id, r])), []);
+  const baseById = useMemo(() => new Map(PUBLISHED.map((r) => [r.id, r])), [PUBLISHED]);
   const hits = useMemo(() => applyFilters(index, route.filters, lang), [index, route.filters, lang]);
   const siblings = useMemo(() => hits.map((h) => localize(h.recipe, lang)), [hits, lang]);
 
@@ -72,12 +84,12 @@ export default function App() {
         ? (window as never as { requestIdleCallback: (c: () => void) => number }).requestIdleCallback(cb)
         : setTimeout(cb, 800);
     idle(() => {
-      for (const recipe of BASE_RECIPES.slice(0, 12)) {
+      for (const recipe of PUBLISHED.slice(0, 12)) {
         const src = assetUrl(recipe.image);
         if (src) new Image().src = src;
       }
     });
-  }, [route.name]);
+  }, [route.name, PUBLISHED]);
 
   if (route.name === "print") {
     const list = route.ids
@@ -161,7 +173,7 @@ export default function App() {
       {editCount > 0 && (
         <EditBar
           manager={manager}
-          edits={edits}
+          published={mergeStores(SEED, edits)}
           count={editCount}
           onRevertAll={revertAll}
           t={t}
