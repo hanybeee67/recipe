@@ -78,6 +78,57 @@ npm run standalone      # -> public/everest-recipe-book.html
 
 `npm run build` 가 이 단계를 먼저 돌리므로, 배포본의 단일 파일은 항상 사이트와 같은 내용이다.
 
+### 매니저 로그인 · 내용 수정
+
+레시피를 고치는 것은 **로그인한 매니저만** 할 수 있다. 로그인하지 않으면 보기·검색·
+배율기·PDF 는 전부 되지만 수정 화면 자체가 뜨지 않는다.
+
+- 헤더의 **`🔐 로그인`** → 아이디·비밀번호 → 상세 화면에 **`✏️ 내용 수정`** 버튼이 생긴다
+- 고칠 수 있는 것: **메뉴명 · 조리 시간 · 재료(이름·수량·비고, 추가/삭제/순서) ·
+  조리 단계(추가/삭제/순서) · 가니쉬**
+- 화면에 보이는 언어를 고친다 — 한국어 화면이면 한국어를, EN 화면이면 영어를
+- 고친 즉시 목록·검색·PDF 에까지 반영되고, 원본과 달라진 레시피에는 배지가 붙는다
+- 12시간이 지나면 자동으로 로그아웃된다 (공용 태블릿이 계속 열려 있지 않도록)
+
+**이 잠금은 보안이 아니라 실수 방지 장치다.** 서버가 없는 정적 앱이라 검증이 브라우저
+안에서 일어난다. 비밀번호 자체는 어디에도 없고 PBKDF2-SHA256 20만 회 해시만
+`auth/managers.json` 에 실리지만, 파일을 받아 간 사람이 오프라인에서 대입을 시도하는
+것까지 막지는 못한다. **다른 곳에서 쓰는 비밀번호를 재사용하지 말 것.**
+
+#### 계정 관리
+
+```bash
+npm run user list
+npm run user add    <아이디> <이름> [비밀번호]   # 비밀번호 생략 시 임의 생성해 한 번 보여준다
+npm run user passwd <아이디> [비밀번호]
+npm run user remove <아이디>
+npm run build                                   # 계정을 고쳤으면 다시 배포해야 반영된다
+```
+
+#### 수정한 내용을 전원에게 반영하기
+
+수정분은 **고친 사람의 기기에만** 저장된다. 다른 사람 화면에도 보이게 하려면 파일로
+옮긴다.
+
+```
+① 앱에서 고친다  →  화면 아래 막대의 「⬇ 변경사항 내보내기」
+                     recipe-edits-2026-08-26.json 이 받아진다
+
+② 그 파일을 저장소로 가져와서
+   npm run apply-edits -- recipe-edits-2026-08-26.json --dry-run   # 먼저 미리보기
+   npm run apply-edits -- recipe-edits-2026-08-26.json
+
+③ npm run build   →  커밋 & 푸시  →  Render 가 자동 배포
+```
+
+`apply-edits` 는 한국어 수정분을 `recipes/*.md` 에, 영어 수정분을 `i18n/en/*.json` 에
+반영한다. 한국어 원문이 바뀌면 번역 사전의 키도 함께 옮겨서 기존 영어 문장을 잃지 않는다.
+
+**새로 쓴 한국어 문장에 대응하는 영어가 없으면 지어내지 않는다.** 대신 목록으로 알려주고
+`i18n/en/_missing.json` 에 빈 칸으로 적어 둔다. 채우기 전에는 `npm run build` 가 실패하므로
+영어 화면에 한국어가 새어나가지 않는다. **앱에서 EN 으로 바꿔 같은 자리를 고친 뒤 함께
+내보내면** 이 단계를 건너뛴다.
+
 ### 그 외
 - 라이트 / 다크 테마. **라이트가 기본**이며, 다크는 사용자가 직접 켰을 때만 적용된다
   (시스템 다크를 자동으로 따라가면 카카오톡 인앱 브라우저 등에서 검은 화면으로 열린다)
@@ -156,9 +207,13 @@ public/images/recipes/   요리 사진 84장
 i18n/                    ko/en 번역 사전
 scripts/build-recipes.mjs     md + 번역 -> json + 스키마 검증
 scripts/build-standalone.mjs  전부 인라인한 단일 html (public/everest-recipe-book.html)
+scripts/apply-edits.mjs       앱에서 내보낸 수정 파일 -> md + 번역 사전
+tools/manage-users.mjs        매니저 계정 (auth/managers.json)
 src/
   types.ts               Recipe / Filters 타입, 대분류 9종
   lib/
+    auth.ts              매니저 로그인 (PBKDF2 검증 · 12시간 세션)
+    edits.ts             수정 덮개 저장 · 원본에 얹기 · 내보내기
     hangul.ts            초성 변환
     search.ts            검색 인덱스 · 필터 · 정렬 · 하이라이트
     scale.ts             분량 배율 환산
@@ -168,6 +223,7 @@ src/
     assets.ts            자산 경로
   components/
     Header · ListView · RecipeCard · DetailView · PrintView · Highlight
+    LoginDialog · RecipeEditor · EditBar
   styles/
     tokens.css           색 · 간격 · 서체 토큰 (라이트/다크)
     app.css              화면 스타일
@@ -196,3 +252,10 @@ src/
   (내용을 고치려면 `recipes/*.md` 를 고치고 `npm run standalone` 을 다시 돌린다).
 - 단일 파일은 `file://` 에서 열리므로 ES 모듈 대신 iife 로 번들한다. 저장되는 파일명은
   한글 파일명을 통째로 무시하는 브라우저가 있어 ASCII(`everest-recipe-book.html`)로 둔다.
+- 로그인은 **실수 방지 잠금이지 보안이 아니다.** 서버가 없어 검증이 브라우저 안에서
+  일어나므로, 번들을 받아 간 사람이 오프라인에서 비밀번호를 대입해 볼 수 있다.
+  진짜 접근 제어가 필요해지면 백엔드(서버 + DB)를 따로 두어야 한다.
+- 수정분은 고친 기기의 localStorage 에 남는다. 브라우저 기록을 지우면 **내보내기 전의
+  수정분은 사라진다.** 고쳤으면 그날 안에 내보내는 편이 안전하다.
+- 사진 · 분류 · 태그 · 나열 순서는 앱에서 고칠 수 없다. 원본 엑셀과 순서 규칙에서
+  나오는 값이라, 바꾸려면 `tools/convert_xlsx.py` 를 고치고 다시 변환한다.

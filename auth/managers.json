@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "iterations": 200000,
+  "users": [
+    {
+      "id": "manager",
+      "name": "매니지먼트",
+      "salt": "3b98c63cf35ee3f6c56fd36f1754e69c",
+      "hash": "4ab8e1197e457776ad5823bc2cb3df0dadb099a3fc83149760aa4cb28d439a30"
+    }
+  ]
+}

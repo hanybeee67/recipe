@@ -1,27 +1,56 @@
 import { useEffect, useState } from "react";
 import { GROUP_EMOJI, assetUrl } from "../lib/assets";
-import type { Translate } from "../lib/i18n";
+import type { FieldPatch } from "../lib/edits";
+import type { Lang, Translate } from "../lib/i18n";
 import { detailHref, listHref, navigate, printHref } from "../lib/router";
 import { MULTIPLIERS, scaleAmount, scaleServing, type Multiplier } from "../lib/scale";
 import { useStepProgress } from "../lib/storage";
-import { EMPTY_FILTERS, type Filters, type LocalizedRecipe } from "../types";
+import { EMPTY_FILTERS, type Filters, type LocalizedRecipe, type Recipe } from "../types";
+import { RecipeEditor } from "./RecipeEditor";
 
 interface Props {
   recipe: LocalizedRecipe | undefined;
   filters: Filters;
   /** 현재 필터 결과 순서 — 이전/다음 이동에 사용 */
   siblings: LocalizedRecipe[];
+  /** 덮개가 얹힌 값과 원본 — 편집 폼에 넘긴다 */
+  raw: Recipe | undefined;
+  base: Recipe | undefined;
+  lang: Lang;
+  canEdit: boolean;
+  edited: boolean;
+  onSaveEdit: (draft: FieldPatch) => void;
+  onRevertEdit: () => void;
   t: Translate;
 }
 
-export function DetailView({ recipe, filters, siblings, t }: Props) {
+export function DetailView({
+  recipe,
+  filters,
+  siblings,
+  raw,
+  base,
+  lang,
+  canEdit,
+  edited,
+  onSaveEdit,
+  onRevertEdit,
+  t,
+}: Props) {
   const [multiplier, setMultiplier] = useState<Multiplier>(1);
+  const [editing, setEditing] = useState(false);
   const progress = useStepProgress(recipe?.id ?? "", recipe?.steps.length ?? 0);
 
   useEffect(() => {
     setMultiplier(1);
+    setEditing(false);
     window.scrollTo({ top: 0, behavior: "auto" });
   }, [recipe?.id]);
+
+  // 로그아웃하면 편집 폼도 닫는다.
+  useEffect(() => {
+    if (!canEdit) setEditing(false);
+  }, [canEdit]);
 
   const position = recipe ? siblings.findIndex((r) => r.id === recipe.id) : -1;
   const previous = position > 0 ? siblings[position - 1] : undefined;
@@ -33,12 +62,13 @@ export function DetailView({ recipe, filters, siblings, t }: Props) {
       if (event.metaKey || event.ctrlKey || event.altKey) return;
       const target = event.target as HTMLElement | null;
       if (target && /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName)) return;
+      if (editing) return;
       if (event.key === "ArrowLeft" && previous) navigate(detailHref(previous.id, filters));
       if (event.key === "ArrowRight" && next) navigate(detailHref(next.id, filters));
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [previous, next, filters]);
+  }, [previous, next, filters, editing]);
 
   if (!recipe) {
     return (
@@ -105,6 +135,11 @@ export function DetailView({ recipe, filters, siblings, t }: Props) {
             <a className="btn btn--primary" href={printHref([recipe.id])}>
               📄 {t("detail.export")}
             </a>
+            {canEdit && !editing && (
+              <button type="button" className="btn" onClick={() => setEditing(true)}>
+                ✏️ {t("edit.button")}
+              </button>
+            )}
             {progress.completed > 0 && (
               <button type="button" className="btn" onClick={progress.reset}>
                 {t("detail.resetProgress")}
@@ -127,6 +162,31 @@ export function DetailView({ recipe, filters, siblings, t }: Props) {
 
           <h1 className="detail__title">{recipe.title}</h1>
           <p className="detail__title-en">{recipe.subtitle}</p>
+
+          {edited && (
+            <p className="edited-flag no-print">
+              <span aria-hidden="true">✏️</span> {t("edit.flag")}
+            </p>
+          )}
+
+          {editing && raw && base && (
+            <RecipeEditor
+              base={base}
+              current={raw}
+              lang={lang}
+              edited={edited}
+              onSave={(draft) => {
+                onSaveEdit(draft);
+                setEditing(false);
+              }}
+              onRevert={() => {
+                onRevertEdit();
+                setEditing(false);
+              }}
+              onCancel={() => setEditing(false)}
+              t={t}
+            />
+          )}
 
           {/* ---------------------------------------------------- 재료 */}
           <section className="section">
